@@ -14,7 +14,9 @@ declare global {
     }
 }
 
-const BASE = '/api/x_335329_sn_ktm/kanban/v1'
+// The version segment sits BEFORE the service id — the platform registers
+// /api/{namespace}/{version}/{service_id}/..., not /{service_id}/{version}/...
+const BASE = '/api/x_335329_sn_ktm/v1/kanban'
 const TIMEOUT_MS = 15000
 
 interface Envelope<T> {
