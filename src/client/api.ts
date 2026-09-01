@@ -6,6 +6,7 @@ import {
     JournalEntry,
     KanbanError,
     RecordDetail,
+    Settings,
 } from './types'
 
 declare global {
@@ -122,6 +123,8 @@ export const api = {
             `/record/${encodeURIComponent(table)}/${encodeURIComponent(sysId)}/journal`,
             { method: 'POST', body: JSON.stringify({ board: boardId, field, value }) }
         ),
+
+    settings: () => call<Settings>('/settings'),
 
     getPreferences: () =>
         call<{ preferences: Record<string, string> }>('/preferences').then((d) => d.preferences),

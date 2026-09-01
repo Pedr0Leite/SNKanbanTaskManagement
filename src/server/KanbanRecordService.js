@@ -6,6 +6,7 @@ KanbanRecordService.prototype = {
     initialize: function () {
         this.boardService = new KanbanBoardService()
         this.choiceUtil = new KanbanChoiceUtil()
+        this._authorCache = {}
     },
 
     /**
@@ -45,7 +46,7 @@ KanbanRecordService.prototype = {
             })
         }
 
-        var stream = this.getJournal(table, sysId)
+        var stream = this.getJournal(sysId)
 
         return {
             ok: true,
@@ -66,27 +67,32 @@ KanbanRecordService.prototype = {
     /**
      * Activity stream, newest first.
      *
-     * @param {string} table
+     * Filtered by element_id alone. sys_journal_field.name holds the table that
+     * DECLARES the journal field, not the record's own class — on this instance
+     * the same journal table carries rows named both 'incident' and 'task'
+     * (verified 2026-09-01). Filtering on the board's table therefore silently
+     * hides entries. element_id is a sys_id and already unique.
+     *
      * @param {string} sysId
      * @returns {{entries: Array, has_more: boolean}}
      */
-    getJournal: function (table, sysId) {
+    getJournal: function (sysId) {
         var entries = []
         var j = new GlideRecord('sys_journal_field')
-        j.addQuery('name', table)
         j.addQuery('element_id', sysId)
         j.orderByDesc('sys_created_on')
         j.setLimit(KanbanRecordService.JOURNAL_LIMIT + 1)
         j.query()
         while (j.next()) {
+            var author = this._author(String(j.getValue('sys_created_by')))
             entries.push({
                 sys_id: j.getUniqueValue(),
                 field: String(j.getValue('element')),
                 value: String(j.getValue('value')),
                 created_on: String(j.getValue('sys_created_on')),
                 created_on_display: String(j.getDisplayValue('sys_created_on')),
-                author: String(j.getDisplayValue('sys_created_by') || j.getValue('sys_created_by')),
-                initials: this._initials(String(j.getValue('sys_created_by'))),
+                author: author.name,
+                initials: author.initials,
             })
         }
         var hasMore = entries.length > KanbanRecordService.JOURNAL_LIMIT
@@ -214,22 +220,28 @@ KanbanRecordService.prototype = {
         if (!permitted) {
             return this._err('bad_request', '"' + field + '" is not a journal field enabled on this board.')
         }
-        if (!permitted.can_write) {
-            return this._err('no_write', 'You do not have permission to write to ' + permitted.label + '.')
-        }
 
         var rec = new GlideRecordSecure(table)
         if (!rec.get(sysId)) {
             return this._err('not_found', 'That record does not exist, or you cannot read it.')
         }
 
-        var before = this.getJournal(table, sysId)
+        // Authoritative check is against THIS record, not the blank template the
+        // board config was described from — field ACLs can be record-conditional.
+        var journalEl = rec.getElement(field)
+        if (journalEl && typeof journalEl.canWrite === 'function' && !journalEl.canWrite()) {
+            return this._err('no_write', 'You do not have permission to write to ' + permitted.label + '.')
+        }
+
+        var before = this.getJournal(sysId)
+        var newestBefore = before.entries.length > 0 ? before.entries[0].sys_id : ''
         var correlationId = gs.generateGUID()
         rec.setValue(field, text)
         var result = rec.update()
 
-        var after = this.getJournal(table, sysId)
-        if (after.entries.length <= before.entries.length) {
+        var after = this.getJournal(sysId)
+        var newestAfter = after.entries.length > 0 ? after.entries[0].sys_id : ''
+        if (!newestAfter || newestAfter === newestBefore) {
             gs.error(
                 '[' + correlationId + '] KanbanRecordService.addJournal wrote nothing: ' + table + '/' + sysId +
                 ' field ' + field + '; update() returned ' + (result === null ? 'null' : String(result))
@@ -275,16 +287,32 @@ KanbanRecordService.prototype = {
         return gr.get(sysId) ? String(gr.getValue('sys_updated_on')) : ''
     },
 
-    _initials: function (userName) {
+    /**
+     * Display name and initials for a user_name, cached for the life of this
+     * service instance. Without the cache a 50-entry stream costs 50 queries.
+     *
+     * @param {string} userName sys_journal_field.sys_created_by
+     * @returns {{name: string, initials: string}}
+     */
+    _author: function (userName) {
+        var key = userName || '?'
+        if (this._authorCache[key]) return this._authorCache[key]
+
+        var display = key
         var u = new GlideRecord('sys_user')
-        u.addQuery('user_name', userName)
+        u.addQuery('user_name', key)
         u.setLimit(1)
         u.query()
-        var display = u.next() ? String(u.getValue('name') || userName) : String(userName || '?')
-        var parts = display.split(' ')
-        var first = parts[0] ? parts[0].charAt(0) : '?'
+        if (u.next()) display = String(u.getValue('name') || key)
+
+        var parts = display.split(' ').filter(function (p) {
+            return p.length > 0
+        })
+        var first = parts.length > 0 ? parts[0].charAt(0) : '?'
         var last = parts.length > 1 ? parts[parts.length - 1].charAt(0) : ''
-        return (first + last).toUpperCase()
+
+        this._authorCache[key] = { name: display, initials: (first + last).toUpperCase() }
+        return this._authorCache[key]
     },
 
     _err: function (code, message) {

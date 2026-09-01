@@ -48,12 +48,14 @@ function FieldChip({ field }: { field: FieldValue }): React.JSX.Element | null {
 export interface CardProps {
     card: CardModel
     laneLabel: string
+    /** Lane accent colour, shown as the card's left edge. */
+    accent?: string
     onOpen: (sysId: string) => void
     /** Rendered inside the DragOverlay — no drag listeners, no click handler. */
     overlay?: boolean
 }
 
-export function Card({ card, laneLabel, onOpen, overlay = false }: CardProps): React.JSX.Element {
+export function Card({ card, laneLabel, accent, onOpen, overlay = false }: CardProps): React.JSX.Element {
     const locked = !card.can_write
     const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
         id: card.sys_id,
@@ -81,7 +83,7 @@ export function Card({ card, laneLabel, onOpen, overlay = false }: CardProps): R
                 type="button"
                 ref={overlay ? undefined : setNodeRef}
                 className={className}
-                style={{ borderLeftColor: 'transparent' }}
+                style={accent ? { borderLeftColor: accent } : undefined}
                 title={lockReason}
                 aria-label={`${card.title}. ${laneLabel}.${locked ? ' Read only.' : ''}`}
                 onClick={overlay ? undefined : () => onOpen(card.sys_id)}

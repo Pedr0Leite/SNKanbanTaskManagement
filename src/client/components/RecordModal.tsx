@@ -11,10 +11,17 @@ export interface RecordModalProps {
 }
 
 export function RecordModal({ board, sysId, onClose, onRecordChanged }: RecordModalProps): React.JSX.Element {
+    const writable = board.journal.options.filter((o) => o.can_write)
+
     const [detail, setDetail] = useState<RecordDetail | null>(null)
     const [error, setError] = useState<KanbanError | null>(null)
     const [text, setText] = useState('')
-    const [field, setField] = useState(board.journal.field)
+    // Default to a field the caller can actually write. The board's configured
+    // journal_field may be one they have no access to, and posting to it would
+    // be rejected by the server after they had already typed.
+    const [field, setField] = useState(
+        writable.some((o) => o.name === board.journal.field) ? board.journal.field : (writable[0]?.name ?? '')
+    )
     const [posting, setPosting] = useState(false)
     const [postError, setPostError] = useState<string | null>(null)
 
@@ -65,8 +72,6 @@ export function RecordModal({ board, sysId, onClose, onRecordChanged }: RecordMo
         },
         [onClose]
     )
-
-    const writable = board.journal.options.filter((o) => o.can_write)
 
     async function post(): Promise<void> {
         const value = text.trim()
@@ -166,7 +171,7 @@ export function RecordModal({ board, sysId, onClose, onRecordChanged }: RecordMo
                     ) : null}
                 </div>
 
-                {detail && writable.length > 0 ? (
+                {detail && detail.can_write && writable.length > 0 && field ? (
                     <div className="compose">
                         <label className="visually-hidden" htmlFor="kanban-journal-text">
                             New entry

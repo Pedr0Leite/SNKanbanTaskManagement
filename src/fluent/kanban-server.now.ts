@@ -211,6 +211,18 @@ RestApi({
 })(request, response);`,
         },
         {
+            $id: Now.ID['route-settings'],
+            name: 'Get settings',
+            method: 'GET',
+            path: '/settings',
+            version: 1,
+            shortDescription: 'Appearance settings from the Kanban system properties.',
+            script: `(function (request, response) {
+    var api = new KanbanApi();
+    api.guard(response, function () { return api.getSettings(); });
+})(request, response);`,
+        },
+        {
             $id: Now.ID['route-prefs-get'],
             name: 'Get preferences',
             method: 'GET',

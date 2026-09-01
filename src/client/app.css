@@ -1,4 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap');
+/* The Plus Jakarta Sans @font-face is linked from index.html, not @import-ed
+   here: the bundler concatenates stylesheets, which would leave the @import
+   below other rules and make it invalid. --font falls back to the system stack
+   if the link is blocked. */
 
 /* Layout follows the Frontend Mentor reference: 300px sidebar, 96px header bar,
    288px columns on a horizontally scrolling board. Sizing is percentage- and
@@ -324,6 +327,20 @@
     padding: 24px;
     overflow: auto;
     min-height: 0;
+}
+
+/* Compact density, driven by the x_335329_sn_ktm.density system property. */
+.kanban-root[data-density='compact'] .card {
+    padding: 12px 14px;
+    gap: 5px;
+}
+
+.kanban-root[data-density='compact'] .lane-cards {
+    gap: 12px;
+}
+
+.kanban-root[data-density='compact'] .board {
+    padding: 16px;
 }
 
 .lane {

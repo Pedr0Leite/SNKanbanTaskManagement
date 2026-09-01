@@ -10,6 +10,8 @@ export interface Toast {
 
 export interface SidebarProps {
     boards: BoardSummary[]
+    /** Product name, from the x_335329_sn_ktm.title system property. */
+    brand: string
     activeBoardId: string
     theme: 'light' | 'dark'
     onSelect: (boardId: string) => void
@@ -19,6 +21,7 @@ export interface SidebarProps {
 
 export function Sidebar({
     boards,
+    brand,
     activeBoardId,
     theme,
     onSelect,
@@ -29,7 +32,7 @@ export function Sidebar({
         <nav className="sidebar" aria-label="Boards">
             <div className="sidebar-brand">
                 <span className="mark" aria-hidden="true" />
-                Kanban
+                {brand}
             </div>
 
             <p className="sidebar-heading" id="board-list-heading">
@@ -108,7 +111,7 @@ export function Toolbar({
                 </button>
             ) : null}
             <h1>{title}</h1>
-            <span className="table-chip">{table}</span>
+            {table ? <span className="table-chip">{table}</span> : null}
             <span className="spacer" />
 
             <div className="search">

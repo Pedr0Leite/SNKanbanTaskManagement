@@ -70,6 +70,17 @@ export interface CardsPayload {
     limit: number
 }
 
+/** Appearance settings, from the Kanban system properties category. */
+export interface Settings {
+    title: string
+    accent: string
+    accent_dark: string
+    default_theme: 'system' | 'light' | 'dark'
+    lane_width: number
+    show_table_chip: boolean
+    density: 'comfortable' | 'compact'
+}
+
 export interface BoardSummary {
     sys_id: string
     name: string

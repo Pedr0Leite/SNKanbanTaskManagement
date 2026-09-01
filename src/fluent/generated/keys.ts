@@ -21,6 +21,34 @@ declare global {
                         table: 'sys_script'
                         id: 'c1ce1ebf8d434e968b939d96436d8b27'
                     }
+                    'cat-accent': {
+                        table: 'sys_properties_category_m2m'
+                        id: '580e331e2a074ff69eb36e0afbe70715'
+                    }
+                    'cat-accent-dark': {
+                        table: 'sys_properties_category_m2m'
+                        id: 'ae1a528052a1483daafdf8935431f56c'
+                    }
+                    'cat-default-theme': {
+                        table: 'sys_properties_category_m2m'
+                        id: 'a2a372437044422399a20e016bda6287'
+                    }
+                    'cat-density': {
+                        table: 'sys_properties_category_m2m'
+                        id: 'dcb8e2032c8c4e0f9e7527b1fcadfdc3'
+                    }
+                    'cat-lane-width': {
+                        table: 'sys_properties_category_m2m'
+                        id: 'c244f168c489481a85ac201483099c00'
+                    }
+                    'cat-show-table-chip': {
+                        table: 'sys_properties_category_m2m'
+                        id: 'd42782da997b4f4a941dff4e24c2ab60'
+                    }
+                    'cat-title': {
+                        table: 'sys_properties_category_m2m'
+                        id: 'c97e08fa19894240a12eb67d3d03dc12'
+                    }
                     'fld-assigned': {
                         table: 'x_335329_sn_ktm_field'
                         id: '30dfa81eefa54c80949304100e7cd31b'
@@ -50,6 +78,10 @@ declare global {
                         id: 'a3cabb9ae23f4e82a303da49c8f757c7'
                         deleted: true
                     }
+                    'kanban-verify': {
+                        table: 'sys_script_fix'
+                        id: '445856e6a3484bf4ae821a43e7751255'
+                    }
                     'lane-cancelled': {
                         table: 'x_335329_sn_ktm_lane'
                         id: 'e4ca2258b33c4074bc6941af6d15a048'
@@ -77,6 +109,38 @@ declare global {
                     package_json: {
                         table: 'sys_module'
                         id: 'b0b46077082b465596f0879dc25fc475'
+                    }
+                    'prop-accent': {
+                        table: 'sys_properties'
+                        id: '07a804e2ed1e47238ffc2be1677919c7'
+                    }
+                    'prop-accent-dark': {
+                        table: 'sys_properties'
+                        id: '3f599557b9ac49fbb5316dd38ae4f9c4'
+                    }
+                    'prop-category': {
+                        table: 'sys_properties_category'
+                        id: '159a546d0a0f4331ab93ef1bb322d391'
+                    }
+                    'prop-default-theme': {
+                        table: 'sys_properties'
+                        id: 'd1714e5047bb48b99ed3b0bca07e4917'
+                    }
+                    'prop-density': {
+                        table: 'sys_properties'
+                        id: '46c60fb3ff864ba49261490811c75426'
+                    }
+                    'prop-lane-width': {
+                        table: 'sys_properties'
+                        id: 'cb3210b2462546b78f1b7e599eae4cac'
+                    }
+                    'prop-show-table-chip': {
+                        table: 'sys_properties'
+                        id: 'ef12c6654922431ba98f339fe49ca75f'
+                    }
+                    'prop-title': {
+                        table: 'sys_properties'
+                        id: 'f5d1af5bd9584e309667853626897b9c'
                     }
                     'rest-kanban': {
                         table: 'sys_ws_definition'
@@ -117,6 +181,10 @@ declare global {
                     'route-record': {
                         table: 'sys_ws_operation'
                         id: '937a4d862d494163a0948a127c3c2a93'
+                    }
+                    'route-settings': {
+                        table: 'sys_ws_operation'
+                        id: '1f07c1bb69684485bf3a32e4cbf5b469'
                     }
                     'si-api': {
                         table: 'sys_script_include'

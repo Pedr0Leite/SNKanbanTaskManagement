@@ -9,8 +9,13 @@ export interface LaneProps {
     onOpen: (sysId: string) => void
 }
 
+/** dnd-kit ids must be non-empty and must not collide with card sys_ids. */
+export function laneDroppableId(value: string): string {
+    return `lane:${value}`
+}
+
 export function Lane({ lane, cards, onOpen }: LaneProps): React.JSX.Element {
-    const { setNodeRef, isOver } = useDroppable({ id: lane.value })
+    const { setNodeRef, isOver } = useDroppable({ id: laneDroppableId(lane.value) })
     const overLimit = lane.wip_limit > 0 && cards.length > lane.wip_limit
     const headingId = `lane-${lane.value}-heading`
 
@@ -40,7 +45,13 @@ export function Lane({ lane, cards, onOpen }: LaneProps): React.JSX.Element {
             ) : (
                 <ul className="lane-cards">
                     {cards.map((card) => (
-                        <Card key={card.sys_id} card={card} laneLabel={lane.label} onOpen={onOpen} />
+                        <Card
+                            key={card.sys_id}
+                            card={card}
+                            laneLabel={lane.label}
+                            accent={lane.accent}
+                            onOpen={onOpen}
+                        />
                     ))}
                 </ul>
             )}

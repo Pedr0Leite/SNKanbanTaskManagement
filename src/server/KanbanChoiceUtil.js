@@ -143,19 +143,37 @@ KanbanChoiceUtil.prototype = {
      * @returns {{label: string, type: string, reference: string}|null} null if the field does not exist
      */
     describeField: function (templateRecord, element) {
+        var ed
         try {
             var el = templateRecord.getElement(element)
             if (!el) return null
-            var ed = el.getED()
+            ed = el.getED()
             if (!ed) return null
-            return {
-                label: String(ed.getLabel()),
-                type: String(ed.getInternalType()),
-                reference: typeof ed.getReference === 'function' ? String(ed.getReference() || '') : '',
-            }
         } catch (e) {
             return null
         }
+
+        var label
+        var type
+        try {
+            label = String(ed.getLabel())
+            type = String(ed.getInternalType())
+        } catch (e) {
+            return null
+        }
+
+        // getReference() throws on fields that are not references, so it gets its
+        // own guard. Folding it into the block above made a single non-reference
+        // field (priority, state, opened_at...) return null for the whole
+        // descriptor, which silently emptied every card and failed board load.
+        var reference = ''
+        try {
+            if (typeof ed.getReference === 'function') reference = String(ed.getReference() || '')
+        } catch (e) {
+            reference = ''
+        }
+
+        return { label: label, type: type, reference: reference }
     },
 
     type: 'KanbanChoiceUtil',

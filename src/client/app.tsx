@@ -15,7 +15,7 @@ import './theme.css'
 import './app.css'
 
 import { api } from './api'
-import { BoardConfig, BoardSummary, Card as CardModel, KanbanError } from './types'
+import { BoardConfig, BoardSummary, Card as CardModel, KanbanError, Settings } from './types'
 import { Card } from './components/Card'
 import { Lane } from './components/Lane'
 import { Sidebar, Toast, Toasts, Toolbar } from './components/Chrome'
@@ -24,8 +24,20 @@ import { Empty, Failed, Loading, NoAccess } from './components/States'
 
 type Theme = 'light' | 'dark'
 
-function preferredTheme(stored: string | undefined): Theme {
+const FALLBACK_SETTINGS: Settings = {
+    title: 'Kanban',
+    accent: '#635fc7',
+    accent_dark: '#7b77e0',
+    default_theme: 'system',
+    lane_width: 288,
+    show_table_chip: true,
+    density: 'comfortable',
+}
+
+/** User's saved choice wins, then the administrator's default, then the OS. */
+function preferredTheme(stored: string | undefined, fallback: Settings['default_theme']): Theme {
     if (stored === 'dark' || stored === 'light') return stored
+    if (fallback === 'dark' || fallback === 'light') return fallback
     return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
@@ -40,12 +52,16 @@ export default function App(): React.JSX.Element {
     const [refreshing, setRefreshing] = useState(false)
     const [error, setError] = useState<KanbanError | null>(null)
 
+    const [settings, setSettings] = useState<Settings>(FALLBACK_SETTINGS)
     const [theme, setTheme] = useState<Theme>('light')
     const [sidebarHidden, setSidebarHidden] = useState(false)
     const [search, setSearch] = useState('')
     const [debouncedSearch, setDebouncedSearch] = useState('')
     const [assignedToMe, setAssignedToMe] = useState(false)
 
+    // Bumped by the retry button so a failed board-config fetch can be re-run,
+    // not just the card fetch (which is a no-op while board is null).
+    const [reloadKey, setReloadKey] = useState(0)
     const [openRecord, setOpenRecord] = useState<string | null>(null)
     const [draggingId, setDraggingId] = useState<string | null>(null)
     const [toasts, setToasts] = useState<Toast[]>([])
@@ -60,13 +76,18 @@ export default function App(): React.JSX.Element {
         window.setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 9000)
     }, [])
 
-    // ---- preferences + board list -----------------------------------------
+    // ---- settings + preferences + board list -------------------------------
     useEffect(() => {
         let live = true
-        Promise.all([api.getPreferences().catch(() => ({}) as Record<string, string>), api.boards()])
-            .then(([prefs, list]) => {
+        Promise.all([
+            api.getPreferences().catch(() => ({}) as Record<string, string>),
+            api.settings().catch(() => FALLBACK_SETTINGS),
+            api.boards(),
+        ])
+            .then(([prefs, appSettings, list]) => {
                 if (!live) return
-                setTheme(preferredTheme(prefs.theme))
+                setSettings(appSettings)
+                setTheme(preferredTheme(prefs.theme, appSettings.default_theme))
                 setSidebarHidden(prefs.sidebar === 'hidden')
                 setBoards(list)
                 setBoardId((current) => current || (list.length > 0 ? list[0].sys_id : ''))
@@ -114,21 +135,31 @@ export default function App(): React.JSX.Element {
         return () => {
             live = false
         }
-    }, [boardId])
+    }, [boardId, reloadKey])
 
     // ---- cards -------------------------------------------------------------
+    // Bumped on every board/filter change so a slow in-flight response cannot
+    // overwrite the results of a newer request.
+    const requestSeq = useRef(0)
+
     const loadCards = useCallback(
         (showSpinner: boolean) => {
             if (!boardId || !board) return
+            const ticket = ++requestSeq.current
             if (showSpinner) setRefreshing(true)
             api.cards(boardId, { search: debouncedSearch, assignedToMe })
                 .then((payload) => {
+                    if (ticket !== requestSeq.current) return
                     setCards(payload.cards)
                     setCapped(payload.capped)
                     setError(null)
                 })
-                .catch((e: unknown) => setError(e instanceof KanbanError ? e : null))
+                .catch((e: unknown) => {
+                    if (ticket !== requestSeq.current) return
+                    setError(e instanceof KanbanError ? e : null)
+                })
                 .finally(() => {
+                    if (ticket !== requestSeq.current) return
                     setLoading(false)
                     setRefreshing(false)
                 })
@@ -165,7 +196,9 @@ export default function App(): React.JSX.Element {
         if (!over || !board) return
 
         const sysId = String(active.id)
-        const toLane = String(over.id)
+        const overId = String(over.id)
+        if (!overId.startsWith('lane:')) return
+        const toLane = overId.slice('lane:'.length)
         const card = cards.find((c) => c.sys_id === sysId)
         if (!card || card.lane_value === toLane) return
 
@@ -245,11 +278,14 @@ export default function App(): React.JSX.Element {
     if (error && (error.code === 'no_access' || error.code === 'no_write')) {
         content = <NoAccess error={error} />
     } else if (error) {
-        content = <Failed error={error} onRetry={() => loadCards(true)} />
+        content = <Failed error={error} onRetry={() => setReloadKey((k) => k + 1)} />
     } else if (loading || !board) {
         content = <Loading />
-    } else if (cards.length === 0) {
-        content = <Empty hasFilters={hasFilters} onClear={clearFilters} />
+    } else if (cards.length === 0 && hasFilters) {
+        // Only take over the whole surface when a filter is what emptied it.
+        // An unfiltered empty board still renders its lanes, so cards can be
+        // dropped into them and the configured columns stay visible.
+        content = <Empty hasFilters onClear={clearFilters} />
     } else {
         content = (
             <DndContext
@@ -280,11 +316,19 @@ export default function App(): React.JSX.Element {
         )
     }
 
+    // Administrator-controlled appearance, injected as token overrides rather
+    // than hardcoded anywhere. Values are validated server-side.
+    const rootStyle = {
+        '--purple': theme === 'dark' ? settings.accent_dark : settings.accent,
+        '--lane-width': `${settings.lane_width}px`,
+    } as React.CSSProperties
+
     return (
-        <div className="kanban-root" data-theme={theme}>
+        <div className="kanban-root" data-theme={theme} data-density={settings.density} style={rootStyle}>
             {!sidebarHidden ? (
                 <Sidebar
                     boards={boards}
+                    brand={settings.title}
                     activeBoardId={boardId}
                     theme={theme}
                     onSelect={setBoardId}
@@ -295,8 +339,8 @@ export default function App(): React.JSX.Element {
 
             <div className="main">
                 <Toolbar
-                    title={board?.name ?? 'Kanban'}
-                    table={board?.table ?? ''}
+                    title={board?.name ?? settings.title}
+                    table={settings.show_table_chip ? (board?.table ?? '') : ''}
                     search={search}
                     assignedToMe={assignedToMe}
                     assignedToMeSupported={board?.capabilities.assigned_to_me_supported ?? false}
@@ -304,7 +348,7 @@ export default function App(): React.JSX.Element {
                     sidebarHidden={sidebarHidden}
                     onSearch={setSearch}
                     onToggleAssigned={() => setAssignedToMe((v) => !v)}
-                    onRefresh={() => loadCards(true)}
+                    onRefresh={() => (board ? loadCards(true) : setReloadKey((k) => k + 1))}
                     onShowSidebar={() => hideSidebar(false)}
                 />
 
@@ -312,6 +356,13 @@ export default function App(): React.JSX.Element {
                     <p className="meta-text" style={{ padding: '10px 24px 0' }}>
                         Showing the {board.max_records} most recently updated records. Narrow the search to see
                         others.
+                    </p>
+                ) : null}
+
+                {board && !loading && !error && cards.length === 0 && !hasFilters ? (
+                    <p className="meta-text" style={{ padding: '10px 24px 0' }}>
+                        No records match this board’s filter yet. Its columns are shown so work can be dropped
+                        into them.
                     </p>
                 ) : null}
 

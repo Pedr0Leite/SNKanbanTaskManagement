@@ -123,7 +123,9 @@ KanbanBoardService.prototype = {
         var q = new GlideRecordSecure(table)
         var baseFilter = gr.getValue('filter')
         if (baseFilter) q.addEncodedQuery(baseFilter)
-        if (opts.filter) q.addEncodedQuery(opts.filter)
+
+        var extra = this._safeExtraFilter(opts.filter)
+        if (extra) q.addEncodedQuery(extra)
 
         if (opts.assigned_to_me && this.choiceUtil.describeField(template, 'assigned_to')) {
             q.addQuery('assigned_to', gs.getUserID())
@@ -140,12 +142,19 @@ KanbanBoardService.prototype = {
         // Only ever ask for lanes the board actually shows.
         q.addQuery(laneField, 'IN', Object.keys(visible).join(','))
         q.orderByDesc('sys_updated_on')
-        q.setLimit(cap)
+        // One over the cap so "capped" reflects records actually left behind,
+        // rather than firing whenever the result happens to land exactly on it.
+        q.setLimit(cap + 1)
         q.query()
 
         var cards = []
         var counts = {}
+        var overflow = false
         while (q.next()) {
+            if (cards.length >= cap) {
+                overflow = true
+                break
+            }
             var laneValue = String(q.getValue(laneField))
             if (!visible[laneValue]) continue
             counts[laneValue] = (counts[laneValue] || 0) + 1
@@ -159,7 +168,7 @@ KanbanBoardService.prototype = {
             data: {
                 cards: cards,
                 counts: counts,
-                capped: cards.length >= cap,
+                capped: overflow,
                 limit: cap,
             },
         }
@@ -356,6 +365,29 @@ KanbanBoardService.prototype = {
         } catch (e) {
             return false
         }
+    },
+
+    /**
+     * A caller-supplied encoded query may only NARROW the board, never widen it.
+     *
+     * Two encoded-query constructs escape an existing query rather than adding
+     * to it: "NQ" starts a brand new query, and a leading "^OR" ORs against
+     * everything before it. Either would let a caller see records the board's
+     * own filter deliberately excludes. ACLs still apply regardless, so this
+     * protects the board's configuration, not the data.
+     *
+     * @param {string} filter
+     * @returns {string} the filter, or '' if it must be discarded
+     */
+    _safeExtraFilter: function (filter) {
+        var value = String(filter || '').trim()
+        if (!value) return ''
+        if (/(^|\^)NQ/i.test(value)) {
+            gs.warn('Kanban: discarded a client filter containing NQ: ' + value)
+            return ''
+        }
+        value = value.replace(/^\^*(OR)?\^*/i, '')
+        return value
     },
 
     /** Board max_records, clamped to a hard server-side ceiling. */
