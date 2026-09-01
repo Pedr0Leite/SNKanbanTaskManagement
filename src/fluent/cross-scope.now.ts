@@ -1,0 +1,199 @@
+import '@servicenow/sdk/global'
+import { CrossScopePrivilege } from '@servicenow/sdk/core'
+
+/**
+ * Cross-scope privileges.
+ *
+ * A scoped app reaching Global tables and APIs needs these. An INTERACTIVE
+ * admin session auto-grants them on first use and quietly records the grant,
+ * which is why the board worked from a Fix Script but returned nothing over
+ * REST — a REST transaction is refused instead of auto-granted.
+ *
+ * Granted-at-runtime records live outside the application, so they are lost on
+ * reinstall and never travel to another instance. Declaring them here makes
+ * them app metadata.
+ *
+ * NOTE FOR ADMINISTRATORS: the board table entries below cover `task` and the
+ * seeded `incident` board. Pointing a board at a different Task child needs a
+ * matching read/write pair for that table. See docs/CONFIG.md.
+ */
+
+// ---- Platform tables the board reads --------------------------------------
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-sys-db-object-read'],
+    targetName: 'sys_db_object',
+    targetType: 'sys_db_object',
+    targetScope: 'global',
+    operation: 'read',
+    status: 'allowed',
+})
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-sys-choice-read'],
+    targetName: 'sys_choice',
+    targetType: 'sys_db_object',
+    targetScope: 'global',
+    operation: 'read',
+    status: 'allowed',
+})
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-sys-journal-read'],
+    targetName: 'sys_journal_field',
+    targetType: 'sys_db_object',
+    targetScope: 'global',
+    operation: 'read',
+    status: 'allowed',
+})
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-sys-user-read'],
+    targetName: 'sys_user',
+    targetType: 'sys_db_object',
+    targetScope: 'global',
+    operation: 'read',
+    status: 'allowed',
+})
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-sys-user-role-read'],
+    targetName: 'sys_user_role',
+    targetType: 'sys_db_object',
+    targetScope: 'global',
+    operation: 'read',
+    status: 'allowed',
+})
+
+// ---- Board tables ----------------------------------------------------------
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-task-read'],
+    targetName: 'task',
+    targetType: 'sys_db_object',
+    targetScope: 'global',
+    operation: 'read',
+    status: 'allowed',
+})
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-task-write'],
+    targetName: 'task',
+    targetType: 'sys_db_object',
+    targetScope: 'global',
+    operation: 'write',
+    status: 'allowed',
+})
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-incident-read'],
+    targetName: 'incident',
+    targetType: 'sys_db_object',
+    targetScope: 'global',
+    operation: 'read',
+    status: 'allowed',
+})
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-incident-write'],
+    targetName: 'incident',
+    targetType: 'sys_db_object',
+    targetScope: 'global',
+    operation: 'write',
+    status: 'allowed',
+})
+
+// ---- Scriptable APIs -------------------------------------------------------
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-api-table-metadata'],
+    targetName: 'Glide API: table metadata',
+    targetType: 'scriptable',
+    targetScope: 'global',
+    operation: 'execute',
+    status: 'allowed',
+})
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-api-string-utils'],
+    targetName: 'Glide API: string utilities',
+    targetType: 'scriptable',
+    targetScope: 'global',
+    operation: 'execute',
+    status: 'allowed',
+})
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-api-properties'],
+    targetName: 'Glide API: properties',
+    targetType: 'scriptable',
+    targetScope: 'global',
+    operation: 'execute',
+    status: 'allowed',
+})
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-grs-getvalue'],
+    targetName: 'GlideRecordSecure.getValue',
+    targetType: 'scriptable',
+    targetScope: 'global',
+    operation: 'execute',
+    status: 'allowed',
+})
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-grs-addencodedquery'],
+    targetName: 'GlideRecordSecure.addEncodedQuery',
+    targetType: 'scriptable',
+    targetScope: 'global',
+    operation: 'execute',
+    status: 'allowed',
+})
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-grs-orderby'],
+    targetName: 'GlideRecordSecure.orderBy',
+    targetType: 'scriptable',
+    targetScope: 'global',
+    operation: 'execute',
+    status: 'allowed',
+})
+
+// The Scripted REST response builder itself — without these every endpoint
+// fails to write its body, which looks exactly like a dead API.
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-result-setbody'],
+    targetName: 'ScriptableServiceResultBuilder.setBody',
+    targetType: 'scriptable',
+    targetScope: 'global',
+    operation: 'execute',
+    status: 'allowed',
+})
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-result-setstatus'],
+    targetName: 'ScriptableServiceResultBuilder.setStatus',
+    targetType: 'scriptable',
+    targetScope: 'global',
+    operation: 'execute',
+    status: 'allowed',
+})
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-gr-setvalue'],
+    targetName: 'GlideRecord.setValue',
+    targetType: 'scriptable',
+    targetScope: 'global',
+    operation: 'execute',
+    status: 'allowed',
+})
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-gr-update'],
+    targetName: 'GlideRecord.update',
+    targetType: 'scriptable',
+    targetScope: 'global',
+    operation: 'execute',
+    status: 'allowed',
+})

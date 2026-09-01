@@ -3,6 +3,7 @@ var KanbanChoiceUtil = Class.create()
 KanbanChoiceUtil.prototype = {
     initialize: function () {
         this.language = gs.getSession().getLanguage() || 'en'
+        this._warned = {}
     },
 
     /**
@@ -143,37 +144,61 @@ KanbanChoiceUtil.prototype = {
      * @returns {{label: string, type: string, reference: string}|null} null if the field does not exist
      */
     describeField: function (templateRecord, element) {
-        var ed
+        if (!element) return null
+
+        // Existence is decided by isValidField alone. GlideElementDescriptor is
+        // the "Glide API: table metadata" scriptable, which a scoped app may be
+        // refused access to; treating that refusal as "field does not exist"
+        // silently emptied every card and failed board load with a misleading
+        // 'Lane field "state" does not exist on incident'.
         try {
-            var el = templateRecord.getElement(element)
-            if (!el) return null
-            ed = el.getED()
-            if (!ed) return null
+            if (!templateRecord.isValidField(element)) return null
         } catch (e) {
-            return null
+            this._warnOnce('isValidField', 'Kanban: isValidField unavailable (' + String(e) + ')')
+            // Fall through — better to render with a fallback label than to drop
+            // a field the administrator explicitly configured.
         }
 
-        var label
-        var type
-        try {
-            label = String(ed.getLabel())
-            type = String(ed.getInternalType())
-        } catch (e) {
-            return null
-        }
-
-        // getReference() throws on fields that are not references, so it gets its
-        // own guard. Folding it into the block above made a single non-reference
-        // field (priority, state, opened_at...) return null for the whole
-        // descriptor, which silently emptied every card and failed board load.
+        var label = ''
+        var type = ''
         var reference = ''
+
         try {
-            if (typeof ed.getReference === 'function') reference = String(ed.getReference() || '')
+            var ed = templateRecord.getElement(element).getED()
+            label = String(ed.getLabel() || '')
+            type = String(ed.getInternalType() || '')
+            // getReference() throws on non-reference fields, so it is guarded
+            // separately rather than voiding the whole descriptor.
+            try {
+                if (typeof ed.getReference === 'function') reference = String(ed.getReference() || '')
+            } catch (refError) {
+                reference = ''
+            }
         } catch (e) {
-            reference = ''
+            this._warnOnce(
+                'descriptor',
+                'Kanban: field metadata unavailable, falling back to derived labels (' + String(e) + ')'
+            )
         }
 
-        return { label: label, type: type, reference: reference }
+        return {
+            label: label || this._humanise(element),
+            type: type || 'string',
+            reference: reference,
+        }
+    },
+
+    /** "short_description" -> "Short description". Used when the dictionary is unreachable. */
+    _humanise: function (element) {
+        var text = String(element).replace(/_/g, ' ').trim()
+        return text.charAt(0).toUpperCase() + text.slice(1)
+    },
+
+    /** Log a given problem once per request rather than once per field. */
+    _warnOnce: function (key, message) {
+        if (this._warned[key]) return
+        this._warned[key] = true
+        gs.warn(message)
     },
 
     type: 'KanbanChoiceUtil',

@@ -77,6 +77,15 @@ Property({
     ignoreCache: false,
 })
 
+Property({
+    $id: Now.ID['prop-refresh'],
+    name: 'x_335329_sn_ktm.refresh_seconds',
+    type: 'integer',
+    value: 30,
+    description: 'How often the board refetches records, in seconds. 0 turns auto-refresh off. Non-zero values are clamped to 10-600.',
+    ignoreCache: false,
+})
+
 /**
  * The configuration page itself. A properties category renders every property
  * below it as an editable form, so no custom admin UI is needed.
@@ -159,5 +168,15 @@ Record({
         category: Now.ref('sys_properties_category', 'prop-category'),
         property: Now.ref('sys_properties', 'prop-density'),
         order: 700,
+    },
+})
+
+Record({
+    $id: Now.ID['cat-refresh'],
+    table: 'sys_properties_category_m2m',
+    data: {
+        category: Now.ref('sys_properties_category', 'prop-category'),
+        property: Now.ref('sys_properties', 'prop-refresh'),
+        order: 800,
     },
 })

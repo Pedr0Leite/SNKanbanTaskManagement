@@ -32,6 +32,7 @@ const FALLBACK_SETTINGS: Settings = {
     lane_width: 288,
     show_table_chip: true,
     density: 'comfortable',
+    refresh_seconds: 30,
 }
 
 /** User's saved choice wins, then the administrator's default, then the OS. */
@@ -69,6 +70,13 @@ export default function App(): React.JSX.Element {
 
     const toastSeq = useRef(0)
     const lastFocused = useRef<HTMLElement | null>(null)
+
+    // Read by the polling timer without making it a dependency, so the interval
+    // is not torn down and recreated on every card change.
+    const cardsRef = useRef<CardModel[]>([])
+    useEffect(() => {
+        cardsRef.current = cards
+    }, [cards])
 
     const pushToast = useCallback((title: string, body: string, tone: Toast['tone'] = 'info') => {
         const id = ++toastSeq.current
@@ -170,6 +178,37 @@ export default function App(): React.JSX.Element {
     useEffect(() => {
         loadCards(false)
     }, [loadCards])
+
+    // Keep the board in step with the table. Records change from the native
+    // form, from other people's boards and from business rules, so a board that
+    // only refetched on demand would show a stale picture within minutes.
+    //
+    // Paused while a drag is in progress, while the modal is open and whenever
+    // the tab is hidden — refetching under any of those either fights the user
+    // or burns instance capacity on a board nobody is watching.
+    useEffect(() => {
+        if (!board || settings.refresh_seconds <= 0) return
+        if (draggingId || openRecord) return
+
+        const tick = window.setInterval(() => {
+            if (document.visibilityState !== 'visible') return
+            if (cardsRef.current.some((c) => c.pending)) return
+            loadCards(false)
+        }, settings.refresh_seconds * 1000)
+
+        return () => window.clearInterval(tick)
+    }, [board, settings.refresh_seconds, draggingId, openRecord, loadCards])
+
+    // Refetch immediately on return to the tab, so someone coming back from the
+    // native form sees their change rather than waiting out the interval.
+    useEffect(() => {
+        if (!board) return
+        const onVisible = (): void => {
+            if (document.visibilityState === 'visible' && !draggingId && !openRecord) loadCards(false)
+        }
+        document.addEventListener('visibilitychange', onVisible)
+        return () => document.removeEventListener('visibilitychange', onVisible)
+    }, [board, draggingId, openRecord, loadCards])
 
     // ---- drag and drop -----------------------------------------------------
     const sensors = useSensors(

@@ -181,6 +181,12 @@ KanbanApi.prototype = {
 
         var chip = String(gs.getProperty('x_335329_sn_ktm.show_table_chip', 'true'))
 
+        // 0 disables polling. Anything under 10s would hammer the instance, so
+        // a non-zero value is floored rather than honoured literally.
+        var refresh = parseInt(gs.getProperty('x_335329_sn_ktm.refresh_seconds', '30'), 10)
+        if (isNaN(refresh) || refresh < 0) refresh = 30
+        if (refresh > 0) refresh = Math.max(10, Math.min(600, refresh))
+
         return {
             ok: true,
             data: {
@@ -191,6 +197,7 @@ KanbanApi.prototype = {
                 lane_width: laneWidth,
                 show_table_chip: chip === 'true' || chip === '1',
                 density: density,
+                refresh_seconds: refresh,
             },
         }
     },

@@ -79,6 +79,8 @@ export interface Settings {
     lane_width: number
     show_table_chip: boolean
     density: 'comfortable' | 'compact'
+    /** Auto-refresh interval in seconds. 0 disables polling. */
+    refresh_seconds: number
 }
 
 export interface BoardSummary {

@@ -41,6 +41,10 @@ declare global {
                         table: 'sys_properties_category_m2m'
                         id: 'c244f168c489481a85ac201483099c00'
                     }
+                    'cat-refresh': {
+                        table: 'sys_properties_category_m2m'
+                        id: '7fe2af0615bc4975b8d2018867207452'
+                    }
                     'cat-show-table-chip': {
                         table: 'sys_properties_category_m2m'
                         id: 'd42782da997b4f4a941dff4e24c2ab60'
@@ -134,6 +138,10 @@ declare global {
                         table: 'sys_properties'
                         id: 'cb3210b2462546b78f1b7e599eae4cac'
                     }
+                    'prop-refresh': {
+                        table: 'sys_properties'
+                        id: 'a51ede838cb043b890901a53ad6a9320'
+                    }
                     'prop-show-table-chip': {
                         table: 'sys_properties'
                         id: 'ef12c6654922431ba98f339fe49ca75f'
@@ -217,6 +225,82 @@ declare global {
                     src_server_KanbanRecordService_js: {
                         table: 'sys_module'
                         id: 'a35b2b4efd094ea9abe6f53acf78ef39'
+                    }
+                    'xs-api-properties': {
+                        table: 'sys_scope_privilege'
+                        id: '01a5b6df3099460eb9af596f7e485593'
+                    }
+                    'xs-api-string-utils': {
+                        table: 'sys_scope_privilege'
+                        id: '1a81471948e64cb7b558c36dba635952'
+                    }
+                    'xs-api-table-metadata': {
+                        table: 'sys_scope_privilege'
+                        id: 'c3d2c5434ca74024b9192aeb9a888463'
+                    }
+                    'xs-gr-setvalue': {
+                        table: 'sys_scope_privilege'
+                        id: '95abd519f61141aea138be691277b4f0'
+                    }
+                    'xs-gr-update': {
+                        table: 'sys_scope_privilege'
+                        id: '8886431ff68042ebb03b8cc9cd0c1501'
+                    }
+                    'xs-grs-addencodedquery': {
+                        table: 'sys_scope_privilege'
+                        id: '039e5071802f4dbbbdfe2a56a63dfcb5'
+                    }
+                    'xs-grs-getvalue': {
+                        table: 'sys_scope_privilege'
+                        id: 'f1682923de45429b849c077c813056b0'
+                    }
+                    'xs-grs-orderby': {
+                        table: 'sys_scope_privilege'
+                        id: '3e46190c87c04e859a2313a3dd256bb4'
+                    }
+                    'xs-incident-read': {
+                        table: 'sys_scope_privilege'
+                        id: '246144b2d4a4462d9cf7adbe15665db6'
+                    }
+                    'xs-incident-write': {
+                        table: 'sys_scope_privilege'
+                        id: '981ded0c39954577be1b575c0f64d367'
+                    }
+                    'xs-result-setbody': {
+                        table: 'sys_scope_privilege'
+                        id: '3ab55bc67f4e45b8940ec50fe05076db'
+                    }
+                    'xs-result-setstatus': {
+                        table: 'sys_scope_privilege'
+                        id: '534e28893181496bab6ae105af7584ad'
+                    }
+                    'xs-sys-choice-read': {
+                        table: 'sys_scope_privilege'
+                        id: '6a6fe29ba4a04138a51883ea5a4c8708'
+                    }
+                    'xs-sys-db-object-read': {
+                        table: 'sys_scope_privilege'
+                        id: '7325cc5f18594c72bbeb173fc650af46'
+                    }
+                    'xs-sys-journal-read': {
+                        table: 'sys_scope_privilege'
+                        id: '2be4c1ac365d4b9aa15cf764f74fe461'
+                    }
+                    'xs-sys-user-read': {
+                        table: 'sys_scope_privilege'
+                        id: '4a29746a6b5c4ac5bd8b6478f0ec6e71'
+                    }
+                    'xs-sys-user-role-read': {
+                        table: 'sys_scope_privilege'
+                        id: '1722c9c7b8e4400a8704e779bc232675'
+                    }
+                    'xs-task-read': {
+                        table: 'sys_scope_privilege'
+                        id: '22b3f831dc5044a0b21bcb0b429bfb3e'
+                    }
+                    'xs-task-write': {
+                        table: 'sys_scope_privilege'
+                        id: 'a9d66873842e48579a443ca2706d5c63'
                     }
                 }
                 composite: [
