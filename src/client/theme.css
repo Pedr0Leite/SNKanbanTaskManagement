@@ -1,0 +1,69 @@
+/*
+ * Theme tokens.
+ *
+ * Applied to .kanban-root, never to document/body — this component lives inside
+ * a host page and must not leak styles into it. Palette follows the Frontend
+ * Mentor reference; contrast pairings checked for WCAG AA at body size.
+ */
+
+.kanban-root {
+    --purple: #635fc7;
+    --purple-hover: #a8a4ff;
+    --purple-soft: rgba(99, 95, 199, 0.1);
+    --red: #d63b3b;
+    --red-soft: rgba(214, 59, 59, 0.12);
+    --amber: #8a6100;
+    --amber-soft: rgba(240, 180, 41, 0.16);
+
+    --surface: #ffffff;
+    --surface-sunken: #f4f7fd;
+    --surface-raised: #ffffff;
+    --lane-bg: transparent;
+    --line: #e4ebfa;
+    --line-strong: #c8d2e4;
+
+    --text: #000112;
+    --text-muted: #626f83;
+    --text-on-accent: #ffffff;
+
+    --shadow-card: 0 4px 6px 0 rgba(54, 78, 126, 0.1);
+    --shadow-modal: 0 10px 40px 0 rgba(54, 78, 126, 0.25);
+    --shadow-drag: 0 12px 24px 0 rgba(54, 78, 126, 0.3);
+
+    --radius-card: 8px;
+    --radius-control: 20px;
+    --lane-width: 288px;
+    --gutter: 24px;
+
+    --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        'Helvetica Neue', Arial, sans-serif;
+
+    color-scheme: light;
+}
+
+.kanban-root[data-theme='dark'] {
+    --purple: #7b77e0;
+    --purple-hover: #a8a4ff;
+    --purple-soft: rgba(123, 119, 224, 0.18);
+    --red: #ff8080;
+    --red-soft: rgba(255, 128, 128, 0.16);
+    --amber: #f0c05a;
+    --amber-soft: rgba(240, 192, 90, 0.16);
+
+    --surface: #2b2c37;
+    --surface-sunken: #20212c;
+    --surface-raised: #2b2c37;
+    --lane-bg: transparent;
+    --line: #3e3f4e;
+    --line-strong: #4b4c5c;
+
+    --text: #ffffff;
+    --text-muted: #9aa6b8;
+    --text-on-accent: #ffffff;
+
+    --shadow-card: 0 4px 6px 0 rgba(0, 0, 0, 0.25);
+    --shadow-modal: 0 10px 40px 0 rgba(0, 0, 0, 0.5);
+    --shadow-drag: 0 12px 24px 0 rgba(0, 0, 0, 0.6);
+
+    color-scheme: dark;
+}

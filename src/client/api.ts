@@ -1,0 +1,132 @@
+import {
+    BoardConfig,
+    BoardSummary,
+    Card,
+    CardsPayload,
+    JournalEntry,
+    KanbanError,
+    RecordDetail,
+} from './types'
+
+declare global {
+    interface Window {
+        g_ck?: string
+    }
+}
+
+const BASE = '/api/x_335329_sn_ktm/kanban/v1'
+const TIMEOUT_MS = 15000
+
+interface Envelope<T> {
+    status: 'ok' | 'error'
+    data?: T
+    error?: { code: string; message: string; suggested_action: string; correlation_id: string }
+}
+
+/**
+ * Single fetch wrapper. Validates the envelope at the boundary so no component
+ * ever has to guess whether it received data or an error, and enforces the 15s
+ * ceiling the optimistic-move contract depends on.
+ */
+async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
+    const controller = new AbortController()
+    const timer = window.setTimeout(() => controller.abort(), TIMEOUT_MS)
+
+    let response: Response
+    try {
+        response = await fetch(`${BASE}${path}`, {
+            ...init,
+            signal: controller.signal,
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'X-UserToken': window.g_ck ?? '',
+                ...(init.headers ?? {}),
+            },
+        })
+    } catch (cause) {
+        window.clearTimeout(timer)
+        const aborted = cause instanceof DOMException && cause.name === 'AbortError'
+        throw new KanbanError(
+            {
+                code: aborted ? 'timeout' : 'network',
+                message: aborted
+                    ? 'The board took too long to respond.'
+                    : 'Could not reach the board service.',
+                suggested_action: 'Check your connection and refresh.',
+                correlation_id: '',
+            },
+            null
+        )
+    } finally {
+        window.clearTimeout(timer)
+    }
+
+    let body: Envelope<T>
+    try {
+        body = (await response.json()) as Envelope<T>
+    } catch {
+        throw new KanbanError(
+            {
+                code: 'malformed',
+                message: `The board service returned something unreadable (HTTP ${response.status}).`,
+                suggested_action: 'Refresh. If it persists, contact an administrator.',
+                correlation_id: '',
+            },
+            null
+        )
+    }
+
+    if (body.status === 'ok' && body.data !== undefined) return body.data
+
+    throw new KanbanError(
+        body.error ?? {
+            code: 'malformed',
+            message: `Unexpected response from the board service (HTTP ${response.status}).`,
+            suggested_action: 'Refresh and try again.',
+            correlation_id: '',
+        },
+        body.data
+    )
+}
+
+export const api = {
+    boards: () => call<{ boards: BoardSummary[] }>('/boards').then((d) => d.boards),
+
+    board: (boardId: string) => call<BoardConfig>(`/board/${encodeURIComponent(boardId)}`),
+
+    cards: (boardId: string, opts: { search?: string; assignedToMe?: boolean; filter?: string }) => {
+        const params = new URLSearchParams()
+        if (opts.search) params.set('search', opts.search)
+        if (opts.assignedToMe) params.set('assigned_to_me', 'true')
+        if (opts.filter) params.set('filter', opts.filter)
+        const qs = params.toString()
+        return call<CardsPayload>(`/board/${encodeURIComponent(boardId)}/cards${qs ? `?${qs}` : ''}`)
+    },
+
+    record: (boardId: string, table: string, sysId: string) =>
+        call<RecordDetail>(
+            `/record/${encodeURIComponent(table)}/${encodeURIComponent(sysId)}?board=${encodeURIComponent(boardId)}`
+        ),
+
+    moveLane: (boardId: string, table: string, sysId: string, toLane: string, expectedUpdatedOn: string) =>
+        call<{ card: Card }>(`/record/${encodeURIComponent(table)}/${encodeURIComponent(sysId)}/lane`, {
+            method: 'PATCH',
+            body: JSON.stringify({ board: boardId, to_lane: toLane, expected_updated_on: expectedUpdatedOn }),
+        }),
+
+    addJournal: (boardId: string, table: string, sysId: string, field: string, value: string) =>
+        call<{ entry: JournalEntry; sys_updated_on: string }>(
+            `/record/${encodeURIComponent(table)}/${encodeURIComponent(sysId)}/journal`,
+            { method: 'POST', body: JSON.stringify({ board: boardId, field, value }) }
+        ),
+
+    getPreferences: () =>
+        call<{ preferences: Record<string, string> }>('/preferences').then((d) => d.preferences),
+
+    setPreferences: (preferences: Record<string, string>) =>
+        call<{ written: number }>('/preferences', {
+            method: 'PUT',
+            body: JSON.stringify({ preferences }),
+        }),
+}

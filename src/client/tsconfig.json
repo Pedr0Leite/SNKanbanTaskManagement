@@ -7,6 +7,12 @@
             "ES2022",
             "DOM"
         ],
-        "jsx": "preserve"
+        "jsx": "preserve",
+        "strict": true,
+        // @dnd-kit/core 6 still references the global JSX namespace that React 19
+        // types dropped. Our own code is fully checked; its .d.ts files are not.
+        "skipLibCheck": true,
+        "noImplicitOverride": true,
+        "noFallthroughCasesInSwitch": true
     }
 }
