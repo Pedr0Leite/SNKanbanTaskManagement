@@ -20,7 +20,7 @@ import { Card } from './components/Card'
 import { Lane } from './components/Lane'
 import { Sidebar, Toast, Toasts, Toolbar } from './components/Chrome'
 import { RecordModal } from './components/RecordModal'
-import { Empty, Failed, Loading, NoAccess } from './components/States'
+import { Empty, Failed, Loading, NoAccess, NoBoards } from './components/States'
 
 type Theme = 'light' | 'dark'
 
@@ -318,6 +318,10 @@ export default function App(): React.JSX.Element {
         content = <NoAccess error={error} />
     } else if (error) {
         content = <Failed error={error} onRetry={() => setReloadKey((k) => k + 1)} />
+    } else if (!loading && boards.length === 0) {
+        // Without this the skeleton renders forever: board stays null because
+        // there is nothing to select, and !board kept us in the loading branch.
+        content = <NoBoards />
     } else if (loading || !board) {
         content = <Loading />
     } else if (cards.length === 0 && hasFilters) {

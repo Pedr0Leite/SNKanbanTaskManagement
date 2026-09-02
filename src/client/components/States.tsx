@@ -1,6 +1,47 @@
 import React from 'react'
 import { KanbanError } from '../types'
 
+/**
+ * Last line of defence. Without this, any render-time exception unmounts the
+ * tree and leaves a white page with nothing to diagnose from.
+ */
+export class ErrorBoundary extends React.Component<
+    { children: React.ReactNode },
+    { error: Error | null }
+> {
+    constructor(props: { children: React.ReactNode }) {
+        super(props)
+        this.state = { error: null }
+    }
+
+    static getDerivedStateFromError(error: Error): { error: Error } {
+        return { error }
+    }
+
+    override componentDidCatch(error: Error, info: React.ErrorInfo): void {
+        console.error('[Kanban] render failed', error, info.componentStack)
+    }
+
+    override render(): React.ReactNode {
+        if (!this.state.error) return this.props.children
+        return (
+            <div className="kanban-root" data-theme="light" style={{ display: 'block', padding: 24 }}>
+                <div className="state-panel" role="alert">
+                    <span className="glyph" aria-hidden="true">
+                        &#9888;
+                    </span>
+                    <h2>The board crashed while rendering</h2>
+                    <p>{this.state.error.message}</p>
+                    <p>The full stack is in the browser console.</p>
+                    <button type="button" className="chip-btn" onClick={() => window.location.reload()}>
+                        Reload
+                    </button>
+                </div>
+            </div>
+        )
+    }
+}
+
 export function Loading(): React.JSX.Element {
     return (
         <div className="skeleton-board" role="status" aria-live="polite">
@@ -34,6 +75,25 @@ export function Empty({ hasFilters, onClear }: { hasFilters: boolean; onClear: (
                     Clear filters
                 </button>
             ) : null}
+        </div>
+    )
+}
+
+export function NoBoards(): React.JSX.Element {
+    return (
+        <div className="state-panel">
+            <span className="glyph" aria-hidden="true">
+                &#128204;
+            </span>
+            <h2>No boards are available to you</h2>
+            <p>
+                Either no Kanban board has been configured yet, or none of them are active and open to your
+                roles.
+            </p>
+            <p>
+                An administrator can create one in the <strong>Kanban Board</strong> table, pointing it at any
+                table that extends <code>task</code>.
+            </p>
         </div>
     )
 }
