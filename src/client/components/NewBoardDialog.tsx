@@ -15,6 +15,7 @@ export function NewBoardDialog({ onClose, onCreated }: NewBoardDialogProps): Rea
 
     const [tables, setTables] = useState<TableOption[]>([])
     const [tableFilter, setTableFilter] = useState('')
+    const [pickerOpen, setPickerOpen] = useState(false)
     const [fields, setFields] = useState<FieldOption[]>([])
     const [lanes, setLanes] = useState<FieldChoices | null>(null)
 
@@ -116,6 +117,9 @@ export function NewBoardDialog({ onClose, onCreated }: NewBoardDialogProps): Rea
     const selectedTable = tables.find((t) => t.name === table)
     const laneOptions = fields.filter((f) => f.lane_capable)
 
+    const labelOf = (fieldName: string): string =>
+        fields.find((f) => f.name === fieldName)?.label ?? fieldName
+
     function toggleCardField(fieldName: string): void {
         setCardFields((prev) =>
             prev.includes(fieldName) ? prev.filter((f) => f !== fieldName) : [...prev, fieldName]
@@ -150,7 +154,12 @@ export function NewBoardDialog({ onClose, onCreated }: NewBoardDialogProps): Rea
     }
 
     const step1Done = name.trim().length > 0 && table.length > 0 && laneField.length > 0
-    const canCreate = step1Done && titleField.length > 0 && lanes?.resolvable === true
+
+    // Only an explicit "these lanes cannot resolve" blocks submission. A preview
+    // that merely failed to load must not lock the button — the server validates
+    // the lane field again on create, so the worst case is a clear error there.
+    const lanesBroken = lanes !== null && !lanes.resolvable
+    const canCreate = step1Done && titleField.length > 0 && !lanesBroken && !loadingLanes
 
     return (
         <div
@@ -229,32 +238,97 @@ export function NewBoardDialog({ onClose, onCreated }: NewBoardDialogProps): Rea
 
                                 <div className="nb-field">
                                     <label htmlFor="nb-table-filter">Table</label>
-                                    <input
-                                        id="nb-table-filter"
-                                        type="search"
-                                        value={tableFilter}
-                                        placeholder={loadingTables ? 'Loading tables…' : 'Search tables that extend task'}
-                                        onChange={(e) => setTableFilter(e.target.value)}
-                                    />
-                                    <ul className="nb-tables" role="listbox" aria-label="Tables">
-                                        {visibleTables.map((t) => (
-                                            <li key={t.name}>
-                                                <button
-                                                    type="button"
-                                                    role="option"
-                                                    aria-selected={t.name === table}
-                                                    className={t.name === table ? 'selected' : ''}
-                                                    onClick={() => setTable(t.name)}
+
+                                    {selectedTable && !pickerOpen ? (
+                                        <div className="ref-chosen">
+                                            <span className="ref-icon" aria-hidden="true">
+                                                &#9636;
+                                            </span>
+                                            <span className="ref-chosen-label">
+                                                {selectedTable.label}
+                                                <code>{selectedTable.name}</code>
+                                            </span>
+                                            <button
+                                                type="button"
+                                                className="ref-clear"
+                                                aria-label="Choose a different table"
+                                                onClick={() => {
+                                                    setPickerOpen(true)
+                                                    setTableFilter('')
+                                                }}
+                                            >
+                                                Change
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="ref-field">
+                                            <span className="ref-icon" aria-hidden="true">
+                                                &#128269;
+                                            </span>
+                                            <input
+                                                id="nb-table-filter"
+                                                type="text"
+                                                role="combobox"
+                                                aria-expanded={pickerOpen}
+                                                aria-controls="nb-table-results"
+                                                aria-autocomplete="list"
+                                                autoComplete="off"
+                                                value={tableFilter}
+                                                placeholder={
+                                                    loadingTables
+                                                        ? 'Loading tables…'
+                                                        : 'Type to search tables that extend task'
+                                                }
+                                                onFocus={() => setPickerOpen(true)}
+                                                onChange={(e) => {
+                                                    setTableFilter(e.target.value)
+                                                    setPickerOpen(true)
+                                                }}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Escape' && pickerOpen) {
+                                                        e.stopPropagation()
+                                                        setPickerOpen(false)
+                                                    }
+                                                    if (e.key === 'Enter' && visibleTables[0]) {
+                                                        e.preventDefault()
+                                                        setTable(visibleTables[0].name)
+                                                        setPickerOpen(false)
+                                                    }
+                                                }}
+                                            />
+                                            {pickerOpen ? (
+                                                <ul
+                                                    className="ref-results"
+                                                    id="nb-table-results"
+                                                    role="listbox"
+                                                    aria-label="Tables"
                                                 >
-                                                    <span className="nb-table-label">{t.label}</span>
-                                                    <code>{t.name}</code>
-                                                </button>
-                                            </li>
-                                        ))}
-                                        {visibleTables.length === 0 && !loadingTables ? (
-                                            <li className="nb-tables-empty">No table matches “{tableFilter}”.</li>
-                                        ) : null}
-                                    </ul>
+                                                    {visibleTables.map((t) => (
+                                                        <li key={t.name}>
+                                                            <button
+                                                                type="button"
+                                                                role="option"
+                                                                aria-selected={t.name === table}
+                                                                className={t.name === table ? 'selected' : ''}
+                                                                onClick={() => {
+                                                                    setTable(t.name)
+                                                                    setPickerOpen(false)
+                                                                }}
+                                                            >
+                                                                <span className="nb-table-label">{t.label}</span>
+                                                                <code>{t.name}</code>
+                                                            </button>
+                                                        </li>
+                                                    ))}
+                                                    {visibleTables.length === 0 && !loadingTables ? (
+                                                        <li className="nb-tables-empty">
+                                                            No table matches “{tableFilter}”.
+                                                        </li>
+                                                    ) : null}
+                                                </ul>
+                                            ) : null}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {table ? (
@@ -398,12 +472,20 @@ export function NewBoardDialog({ onClose, onCreated }: NewBoardDialogProps): Rea
                                             {lane.label}
                                         </p>
                                         <div className="nb-preview-card">
-                                            <span className="nb-preview-line w70" />
-                                            {subtitleField ? <span className="nb-preview-line w90 dim" /> : null}
+                                            <span className="nb-preview-title-line">
+                                                {labelOf(titleField) || 'Card heading'}
+                                            </span>
+                                            {subtitleField ? (
+                                                <span className="nb-preview-sub-line">
+                                                    {labelOf(subtitleField)}
+                                                </span>
+                                            ) : null}
                                             {cardFields.length > 0 ? (
                                                 <span className="nb-preview-meta">
-                                                    {cardFields.slice(0, 3).map((f) => (
-                                                        <span className="nb-preview-pill" key={f} />
+                                                    {cardFields.map((f) => (
+                                                        <span className="nb-preview-pill" key={f}>
+                                                            {labelOf(f)}
+                                                        </span>
                                                     ))}
                                                 </span>
                                             ) : null}

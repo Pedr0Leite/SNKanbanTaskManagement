@@ -47,6 +47,7 @@ KanbanRecordService.prototype = {
         }
 
         var stream = this.getJournal(sysId)
+        var journalOptions = this.journalOptionsFor(ctx.board, table, template, rec)
 
         return {
             ok: true,
@@ -60,8 +61,48 @@ KanbanRecordService.prototype = {
                 fields: fields,
                 journal: stream.entries,
                 journal_has_more: stream.has_more,
+                journal_options: journalOptions,
             },
         }
+    },
+
+    /**
+     * Journal fields this caller may write ON THIS RECORD.
+     *
+     * The board-level version of this check runs against a blank template
+     * record, and journal fields routinely report canWrite() === false on an
+     * uninserted record — which hid the compose box on every card. Asking the
+     * real record is both correct and more permissive.
+     *
+     * @param {GlideRecord} boardRec
+     * @param {string} table
+     * @param {GlideRecord} template initialize()d record, for labels
+     * @param {GlideRecord} rec the actual record, for the ACL decision
+     * @returns {Array} [{name, label, can_write}]
+     */
+    journalOptionsFor: function (boardRec, table, template, rec) {
+        var configured = boardRec.getValue('journal_field') || ''
+        var allowChoice =
+            boardRec.getValue('allow_journal_choice') === '1' ||
+            boardRec.getValue('allow_journal_choice') === 'true'
+
+        var candidates = allowChoice ? ['comments', 'work_notes'] : [configured]
+        var recordWritable = typeof rec.canWrite === 'function' ? rec.canWrite() : true
+        var options = []
+
+        for (var i = 0; i < candidates.length; i++) {
+            var name = candidates[i]
+            if (!name) continue
+            var meta = this.choiceUtil.describeField(template, name)
+            if (!meta) continue
+
+            var canWrite = recordWritable
+            var el = rec.getElement(name)
+            if (el && typeof el.canWrite === 'function') canWrite = recordWritable && el.canWrite()
+
+            options.push({ name: name, label: meta.label, can_write: canWrite })
+        }
+        return options
     },
 
     /**

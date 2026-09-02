@@ -203,6 +203,61 @@ const script = `
         return { was: was, now: String(check.getValue('state')) };
     });
 
+    attempt('19_journalOptionsOnRecord', function () {
+        if (!firstCardId) return { skipped: 'no cards' };
+        var r = new KanbanRecordService().getRecord(boardId, table, firstCardId);
+        if (!r.ok) return { ok: false, code: r.code, message: r.message };
+        return {
+            record_can_write: r.data.can_write,
+            journal_options: r.data.journal_options,
+            composeWouldShow: (r.data.journal_options || []).filter(function (o) { return o.can_write; }).length > 0
+        };
+    });
+
+    attempt('20_boardAuthoring', function () {
+        var admin = new KanbanAdminService();
+        var tables = admin.listTaskTables();
+        var fieldsResult = admin.listFields('sc_task');
+        var choices = admin.fieldChoices('sc_task', 'state');
+
+        // Create a throwaway board, prove it renders, then remove it.
+        var created = admin.createBoard({
+            name: 'KANBAN_VERIFY temp board',
+            table: 'sc_task',
+            lane_field: 'state',
+            filter: '',
+            card_title_field: 'number',
+            card_subtitle_field: 'short_description',
+            journal_field: 'comments',
+            allow_journal_choice: true,
+            card_fields: ['priority'],
+            modal_fields: ['priority']
+        });
+
+        var rendered = null;
+        if (created.ok) {
+            var check = new KanbanBoardService().getBoard(created.data.sys_id);
+            rendered = check.ok
+                ? { lanes: check.data.lanes.length, card_fields: check.data.card_fields.length }
+                : { error: check.code + ': ' + check.message };
+
+            var cleanupFields = new GlideRecord('x_335329_sn_ktm_field');
+            cleanupFields.addQuery('board', created.data.sys_id);
+            cleanupFields.deleteMultiple();
+            var cleanup = new GlideRecord('x_335329_sn_ktm_board');
+            if (cleanup.get(created.data.sys_id)) cleanup.deleteRecord();
+        }
+
+        return {
+            tableCount: tables.ok ? tables.data.tables.length : ('ERR ' + tables.message),
+            scTaskFields: fieldsResult.ok ? fieldsResult.data.fields.length : ('ERR ' + fieldsResult.message),
+            scTaskLaneChoices: choices.ok ? choices.data.choices.length : ('ERR ' + choices.message),
+            created: created.ok ? created.data : (created.code + ': ' + created.message),
+            renderedAfterCreate: rendered,
+            cleanedUp: created.ok
+        };
+    });
+
     out('zz_done', { at: new GlideDateTime().getDisplayValue() });
 })();
 `

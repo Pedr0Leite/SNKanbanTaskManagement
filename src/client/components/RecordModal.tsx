@@ -11,17 +11,14 @@ export interface RecordModalProps {
 }
 
 export function RecordModal({ board, sysId, onClose, onRecordChanged }: RecordModalProps): React.JSX.Element {
-    const writable = board.journal.options.filter((o) => o.can_write)
-
     const [detail, setDetail] = useState<RecordDetail | null>(null)
     const [error, setError] = useState<KanbanError | null>(null)
     const [text, setText] = useState('')
-    // Default to a field the caller can actually write. The board's configured
-    // journal_field may be one they have no access to, and posting to it would
-    // be rejected by the server after they had already typed.
-    const [field, setField] = useState(
-        writable.some((o) => o.name === board.journal.field) ? board.journal.field : (writable[0]?.name ?? '')
-    )
+    const [field, setField] = useState(board.journal.field)
+
+    // Permissions come from the record, which is the only place they are
+    // trustworthy. The board contract's copy is derived from a blank template.
+    const writable = (detail?.journal_options ?? board.journal.options).filter((o) => o.can_write)
     const [posting, setPosting] = useState(false)
     const [postError, setPostError] = useState<string | null>(null)
     const [loadingOlder, setLoadingOlder] = useState(false)
@@ -39,6 +36,12 @@ export function RecordModal({ board, sysId, onClose, onRecordChanged }: RecordMo
                 setDetail(d)
                 setNextOffset(d.journal.length)
                 setHasMore(d.journal_has_more)
+                // Land on a field this caller can actually write, so they never
+                // type a note only to have it refused on submit.
+                const allowed = (d.journal_options ?? []).filter((o) => o.can_write)
+                setField((current) =>
+                    allowed.some((o) => o.name === current) ? current : (allowed[0]?.name ?? '')
+                )
             })
             .catch((e: unknown) => {
                 if (live) setError(e instanceof KanbanError ? e : null)
@@ -199,10 +202,20 @@ export function RecordModal({ board, sysId, onClose, onRecordChanged }: RecordMo
                     ) : null}
                 </div>
 
-                {detail && detail.can_write && writable.length > 0 && field ? (
+                {detail && writable.length === 0 ? (
                     <div className="compose split-right">
-                        <label className="visually-hidden" htmlFor="kanban-journal-text">
-                            New entry
+                        <p className="section-title">Add a note</p>
+                        <p className="hint">
+                            You do not have permission to post on this record. Ask whoever owns it, or open it
+                            in the platform.
+                        </p>
+                    </div>
+                ) : null}
+
+                {detail && writable.length > 0 && field ? (
+                    <div className="compose split-right">
+                        <label className="section-title" htmlFor="kanban-journal-text">
+                            Add a note
                         </label>
                         <textarea
                             id="kanban-journal-text"

@@ -151,6 +151,8 @@ export interface RecordDetail {
     fields: FieldValue[]
     journal: JournalEntry[]
     journal_has_more: boolean
+    /** Evaluated against this record, not a blank template. */
+    journal_options: JournalOption[]
 }
 
 export interface ApiError {

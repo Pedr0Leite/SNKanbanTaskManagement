@@ -611,10 +611,11 @@
 .qb {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 16px 24px 18px;
+    gap: 14px;
+    padding: 18px 24px 20px;
     background: var(--surface);
     border-bottom: 1px solid var(--line);
+    box-shadow: inset 0 3px 0 0 var(--purple);
 }
 
 .qb-breadcrumb {
@@ -622,6 +623,9 @@
     align-items: baseline;
     gap: 10px;
     flex-wrap: wrap;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: var(--purple-soft);
 }
 
 .qb-crumb-label {
@@ -654,6 +658,16 @@
     grid-template-columns: 78px minmax(120px, 1.1fr) minmax(120px, 1fr) minmax(120px, 1.2fr) 32px;
     gap: 8px;
     align-items: center;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--purple);
+    border-radius: 8px;
+    background: var(--surface-sunken);
+}
+
+.qb-row:focus-within {
+    border-color: var(--purple);
+    border-left-color: var(--purple);
 }
 
 .qb-join {
@@ -674,11 +688,16 @@
     width: 100%;
     border-radius: 6px;
     border: 1px solid var(--line-strong);
-    background: var(--surface-sunken);
+    background: var(--surface);
     color: var(--text);
     padding: 4px 8px;
     font: inherit;
     font-size: 13px;
+}
+
+.qb select:hover,
+.qb input:hover {
+    border-color: var(--purple);
 }
 
 .qb-value-none {
@@ -902,15 +921,104 @@
     border-color: var(--purple);
 }
 
-.nb-tables {
-    list-style: none;
-    max-height: 210px;
-    overflow-y: auto;
-    border: 1px solid var(--line);
-    border-radius: 8px;
+/* Reference-field behaviour: type to search, pick one, see it as a token. */
+
+.ref-field {
+    position: relative;
+    display: flex;
+    align-items: center;
 }
 
-.nb-tables button {
+.ref-field .ref-icon {
+    position: absolute;
+    left: 11px;
+    font-size: 12px;
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+.ref-field input {
+    width: 100%;
+    padding-left: 32px !important;
+}
+
+.ref-results {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 5;
+    list-style: none;
+    max-height: 240px;
+    overflow-y: auto;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    box-shadow: var(--shadow-modal);
+}
+
+.ref-chosen {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 38px;
+    padding: 6px 8px 6px 11px;
+    border: 1px solid var(--purple);
+    border-radius: 8px;
+    background: var(--purple-soft);
+}
+
+.ref-chosen .ref-icon {
+    font-size: 12px;
+    color: var(--purple);
+}
+
+.ref-chosen-label {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    overflow: hidden;
+}
+
+.ref-chosen-label code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ref-clear {
+    flex-shrink: 0;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--purple);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    padding: 5px 10px;
+}
+
+.ref-clear:hover {
+    background: var(--purple);
+    color: var(--text-on-accent);
+}
+
+.nb-tables,
+.ref-results {
+    list-style: none;
+}
+
+.nb-tables button,
+.ref-results button {
     width: 100%;
     display: flex;
     align-items: baseline;
@@ -925,15 +1033,18 @@
     border-bottom: 1px solid var(--line);
 }
 
-.nb-tables li:last-child button {
+.nb-tables li:last-child button,
+.ref-results li:last-child button {
     border-bottom: none;
 }
 
-.nb-tables button:hover {
+.nb-tables button:hover,
+.ref-results button:hover {
     background: var(--purple-soft);
 }
 
-.nb-tables button.selected {
+.nb-tables button.selected,
+.ref-results button.selected {
     background: var(--purple);
     color: var(--text-on-accent);
 }
@@ -945,7 +1056,8 @@
     white-space: nowrap;
 }
 
-.nb-tables code {
+.nb-tables code,
+.ref-results code {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 11px;
     opacity: 0.7;
@@ -1082,37 +1194,47 @@
     gap: 6px;
 }
 
-.nb-preview-line {
-    height: 7px;
-    border-radius: 4px;
-    background: var(--text);
-    opacity: 0.75;
+/* Named, not abstract: the preview card shows which fields you picked. */
+
+.nb-preview-title-line {
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.nb-preview-line.dim {
-    opacity: 0.28;
-    height: 6px;
-}
-
-.nb-preview-line.w70 {
-    width: 70%;
-}
-
-.nb-preview-line.w90 {
-    width: 90%;
+.nb-preview-sub-line {
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .nb-preview-meta {
     display: flex;
-    gap: 4px;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 2px;
 }
 
 .nb-preview-pill {
-    width: 22px;
-    height: 8px;
-    border-radius: 5px;
-    background: var(--purple);
-    opacity: 0.55;
+    max-width: 100%;
+    border-radius: 8px;
+    background: var(--purple-soft);
+    color: var(--purple);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    padding: 2px 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .nb-footer {
