@@ -24,6 +24,9 @@ export function RecordModal({ board, sysId, onClose, onRecordChanged }: RecordMo
     )
     const [posting, setPosting] = useState(false)
     const [postError, setPostError] = useState<string | null>(null)
+    const [loadingOlder, setLoadingOlder] = useState(false)
+    const [nextOffset, setNextOffset] = useState(0)
+    const [hasMore, setHasMore] = useState(false)
 
     const dialogRef = useRef<HTMLDivElement>(null)
     const closeRef = useRef<HTMLButtonElement>(null)
@@ -32,7 +35,10 @@ export function RecordModal({ board, sysId, onClose, onRecordChanged }: RecordMo
         let live = true
         api.record(board.sys_id, board.table, sysId)
             .then((d) => {
-                if (live) setDetail(d)
+                if (!live) return
+                setDetail(d)
+                setNextOffset(d.journal.length)
+                setHasMore(d.journal_has_more)
             })
             .catch((e: unknown) => {
                 if (live) setError(e instanceof KanbanError ? e : null)
@@ -73,6 +79,21 @@ export function RecordModal({ board, sysId, onClose, onRecordChanged }: RecordMo
         [onClose]
     )
 
+    async function loadOlder(): Promise<void> {
+        if (loadingOlder || !hasMore) return
+        setLoadingOlder(true)
+        try {
+            const page = await api.journalPage(board.sys_id, board.table, sysId, nextOffset)
+            setDetail((prev) => (prev ? { ...prev, journal: [...prev.journal, ...page.entries] } : prev))
+            setNextOffset(nextOffset + page.entries.length)
+            setHasMore(page.has_more)
+        } catch {
+            setHasMore(false)
+        } finally {
+            setLoadingOlder(false)
+        }
+    }
+
     async function post(): Promise<void> {
         const value = text.trim()
         if (!value || posting) return
@@ -83,6 +104,7 @@ export function RecordModal({ board, sysId, onClose, onRecordChanged }: RecordMo
             setDetail((prev) =>
                 prev ? { ...prev, journal: [result.entry, ...prev.journal] } : prev
             )
+            setNextOffset((n) => n + 1)
             setText('')
             onRecordChanged(sysId, result.sys_updated_on)
         } catch (e: unknown) {
@@ -100,7 +122,7 @@ export function RecordModal({ board, sysId, onClose, onRecordChanged }: RecordMo
             }}
         >
             <div
-                className="modal"
+                className="modal wide split"
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="kanban-modal-title"
@@ -114,7 +136,8 @@ export function RecordModal({ board, sysId, onClose, onRecordChanged }: RecordMo
                     </button>
                 </header>
 
-                <div className="modal-body">
+                <div className="split-body">
+                <div className="modal-body split-left">
                     {error ? (
                         <p role="alert">
                             {error.message} {error.suggestedAction}
@@ -161,10 +184,15 @@ export function RecordModal({ board, sysId, onClose, onRecordChanged }: RecordMo
                                         ))}
                                     </ul>
                                 )}
-                                {detail.journal_has_more ? (
-                                    <p className="meta-text" style={{ marginTop: 10 }}>
-                                        Older entries are not shown. Open the record for the full history.
-                                    </p>
+                                {hasMore ? (
+                                    <button
+                                        type="button"
+                                        className="chip-btn load-older"
+                                        onClick={() => void loadOlder()}
+                                        disabled={loadingOlder}
+                                    >
+                                        {loadingOlder ? 'Loading…' : 'Show older activity'}
+                                    </button>
                                 ) : null}
                             </div>
                         </>
@@ -172,7 +200,7 @@ export function RecordModal({ board, sysId, onClose, onRecordChanged }: RecordMo
                 </div>
 
                 {detail && detail.can_write && writable.length > 0 && field ? (
-                    <div className="compose">
+                    <div className="compose split-right">
                         <label className="visually-hidden" htmlFor="kanban-journal-text">
                             New entry
                         </label>
@@ -219,6 +247,7 @@ export function RecordModal({ board, sysId, onClose, onRecordChanged }: RecordMo
                         </div>
                     </div>
                 ) : null}
+                </div>
             </div>
         </div>
     )

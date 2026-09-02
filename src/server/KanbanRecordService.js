@@ -76,11 +76,15 @@ KanbanRecordService.prototype = {
      * @param {string} sysId
      * @returns {{entries: Array, has_more: boolean}}
      */
-    getJournal: function (sysId) {
+    getJournal: function (sysId, offset) {
+        var start = parseInt(offset, 10)
+        if (isNaN(start) || start < 0) start = 0
+
         var entries = []
         var j = new GlideRecord('sys_journal_field')
         j.addQuery('element_id', sysId)
         j.orderByDesc('sys_created_on')
+        j.chooseWindow(start, start + KanbanRecordService.JOURNAL_LIMIT + 1, false)
         j.setLimit(KanbanRecordService.JOURNAL_LIMIT + 1)
         j.query()
         while (j.next()) {
@@ -97,7 +101,29 @@ KanbanRecordService.prototype = {
         }
         var hasMore = entries.length > KanbanRecordService.JOURNAL_LIMIT
         if (hasMore) entries.pop()
-        return { entries: entries, has_more: hasMore }
+        return { entries: entries, has_more: hasMore, offset: start, next_offset: start + entries.length }
+    },
+
+    /**
+     * One page of the activity stream, for "show older" in the modal.
+     *
+     * @param {string} boardId
+     * @param {string} table
+     * @param {string} sysId
+     * @param {number} offset
+     * @returns {{ok: boolean, data: object}}
+     */
+    getJournalPage: function (boardId, table, sysId, offset) {
+        var ctx = this._context(boardId, table)
+        if (!ctx.ok) return ctx
+
+        // Read access to the record gates access to its activity.
+        var rec = new GlideRecordSecure(table)
+        if (!rec.get(sysId)) {
+            return this._err('not_found', 'That record does not exist, or you cannot read it.')
+        }
+
+        return { ok: true, data: this.getJournal(sysId, offset) }
     },
 
     /**

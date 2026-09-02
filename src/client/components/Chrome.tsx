@@ -17,6 +17,7 @@ export interface SidebarProps {
     onSelect: (boardId: string) => void
     onToggleTheme: () => void
     onHide: () => void
+    onNewBoard: () => void
 }
 
 export function Sidebar({
@@ -27,6 +28,7 @@ export function Sidebar({
     onSelect,
     onToggleTheme,
     onHide,
+    onNewBoard,
 }: SidebarProps): React.JSX.Element {
     return (
         <nav className="sidebar" aria-label="Boards">
@@ -54,6 +56,10 @@ export function Sidebar({
                 ))}
             </ul>
 
+            <button type="button" className="new-board-btn" onClick={onNewBoard}>
+                + New board
+            </button>
+
             <div className="sidebar-footer">
                 <button
                     type="button"
@@ -80,11 +86,15 @@ export interface ToolbarProps {
     title: string
     table: string
     search: string
+    query: string
+    queryOpen: boolean
     assignedToMe: boolean
     assignedToMeSupported: boolean
     refreshing: boolean
     sidebarHidden: boolean
     onSearch: (value: string) => void
+    onQuery: (value: string) => void
+    onToggleQuery: () => void
     onToggleAssigned: () => void
     onRefresh: () => void
     onShowSidebar: () => void
@@ -94,16 +104,21 @@ export function Toolbar({
     title,
     table,
     search,
+    query,
+    queryOpen,
     assignedToMe,
     assignedToMeSupported,
     refreshing,
     sidebarHidden,
     onSearch,
+    onQuery,
+    onToggleQuery,
     onToggleAssigned,
     onRefresh,
     onShowSidebar,
 }: ToolbarProps): React.JSX.Element {
     return (
+        <>
         <header className="topbar">
             {sidebarHidden ? (
                 <button type="button" className="icon-btn" onClick={onShowSidebar} aria-label="Show sidebar">
@@ -127,6 +142,16 @@ export function Toolbar({
                 />
             </div>
 
+            <button
+                type="button"
+                className="chip-btn"
+                aria-pressed={queryOpen || query.length > 0}
+                aria-expanded={queryOpen}
+                onClick={onToggleQuery}
+            >
+                Query{query ? ' •' : ''}
+            </button>
+
             {assignedToMeSupported ? (
                 <button type="button" className="chip-btn" aria-pressed={assignedToMe} onClick={onToggleAssigned}>
                     Assigned to me
@@ -143,6 +168,30 @@ export function Toolbar({
                 &#8635;
             </button>
         </header>
+
+        {queryOpen ? (
+            <div className="query-bar">
+                <label htmlFor="kanban-query">Encoded query</label>
+                <input
+                    id="kanban-query"
+                    type="text"
+                    value={query}
+                    spellCheck={false}
+                    placeholder="priority&lt;=2^assigned_toISNOTEMPTY"
+                    onChange={(e) => onQuery(e.target.value)}
+                />
+                {query ? (
+                    <button type="button" className="chip-btn" onClick={() => onQuery('')}>
+                        Clear
+                    </button>
+                ) : null}
+                <p className="hint">
+                    Narrows the board’s own filter — it can never widen it. Copy one from a list’s
+                    “Copy query”.
+                </p>
+            </div>
+        ) : null}
+        </>
     )
 }
 

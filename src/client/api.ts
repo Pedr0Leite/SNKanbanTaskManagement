@@ -3,10 +3,14 @@ import {
     BoardSummary,
     Card,
     CardsPayload,
+    FieldOption,
     JournalEntry,
+    JournalPage,
     KanbanError,
+    NewBoard,
     RecordDetail,
     Settings,
+    TableOption,
 } from './types'
 
 declare global {
@@ -149,6 +153,25 @@ export const api = {
         ),
 
     settings: () => call<Settings>('/settings'),
+
+    tables: () => call<{ tables: TableOption[] }>('/tables').then((d) => d.tables),
+
+    tableFields: (table: string) =>
+        call<{ table: string; fields: FieldOption[] }>(
+            `/tables/${encodeURIComponent(table)}/fields`
+        ).then((d) => d.fields),
+
+    createBoard: (board: NewBoard) =>
+        call<{ sys_id: string; name: string; table: string; lanes: number; fields_created: number }>(
+            '/boards',
+            { method: 'POST', body: JSON.stringify(board) }
+        ),
+
+    journalPage: (boardId: string, table: string, sysId: string, offset: number) =>
+        call<JournalPage>(
+            `/record/${encodeURIComponent(table)}/${encodeURIComponent(sysId)}/journal` +
+                `?board=${encodeURIComponent(boardId)}&offset=${offset}`
+        ),
 
     getPreferences: () =>
         call<{ preferences: Record<string, string> }>('/preferences').then((d) => d.preferences),

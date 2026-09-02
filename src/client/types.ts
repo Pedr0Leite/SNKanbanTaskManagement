@@ -100,6 +100,38 @@ export interface JournalEntry {
     initials: string
 }
 
+export interface TableOption {
+    name: string
+    label: string
+}
+
+export interface FieldOption {
+    name: string
+    label: string
+    type: string
+    lane_capable: boolean
+}
+
+export interface NewBoard {
+    name: string
+    table: string
+    lane_field: string
+    filter: string
+    card_title_field: string
+    card_subtitle_field: string
+    journal_field: string
+    allow_journal_choice: boolean
+    card_fields: string[]
+    modal_fields: string[]
+}
+
+export interface JournalPage {
+    entries: JournalEntry[]
+    has_more: boolean
+    offset: number
+    next_offset: number
+}
+
 export interface RecordDetail {
     sys_id: string
     table: string

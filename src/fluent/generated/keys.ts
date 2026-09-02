@@ -170,9 +170,21 @@ declare global {
                         table: 'sys_ws_operation'
                         id: 'a512cecd4731403693a148b66bb42353'
                     }
+                    'route-create-board': {
+                        table: 'sys_ws_operation'
+                        id: '12e012d5a0b34405a35d5931a4731eb2'
+                    }
+                    'route-fields': {
+                        table: 'sys_ws_operation'
+                        id: 'b1fee19be926416d9a88249bc2b43573'
+                    }
                     'route-journal': {
                         table: 'sys_ws_operation'
                         id: 'fa542d1382af40988f2b4ca4aa5852f5'
+                    }
+                    'route-journal-page': {
+                        table: 'sys_ws_operation'
+                        id: '7aad58d0849a42e59cd12bd2088e59a5'
                     }
                     'route-lane': {
                         table: 'sys_ws_operation'
@@ -194,6 +206,14 @@ declare global {
                         table: 'sys_ws_operation'
                         id: '1f07c1bb69684485bf3a32e4cbf5b469'
                     }
+                    'route-tables': {
+                        table: 'sys_ws_operation'
+                        id: 'c0ca9a76c09248629891726aab1fefda'
+                    }
+                    'si-admin-service': {
+                        table: 'sys_script_include'
+                        id: '3484d22003e4443c93a2c57249eeb0c3'
+                    }
                     'si-api': {
                         table: 'sys_script_include'
                         id: 'd175bbaebd0b45909ce079ea6741caa7'
@@ -209,6 +229,10 @@ declare global {
                     'si-record-service': {
                         table: 'sys_script_include'
                         id: 'bd93858917b841a4ac6a1e60ee663595'
+                    }
+                    src_server_KanbanAdminService_js: {
+                        table: 'sys_module'
+                        id: 'e3cd6cd044e347ac995d9ee5adbf9c23'
                     }
                     src_server_KanbanApi_js: {
                         table: 'sys_module'
@@ -281,6 +305,10 @@ declare global {
                     'xs-sys-db-object-read': {
                         table: 'sys_scope_privilege'
                         id: '7325cc5f18594c72bbeb173fc650af46'
+                    }
+                    'xs-sys-dictionary-read': {
+                        table: 'sys_scope_privilege'
+                        id: 'c2bbbdc9b14a463288f633e140b84c8d'
                     }
                     'xs-sys-journal-read': {
                         table: 'sys_scope_privilege'

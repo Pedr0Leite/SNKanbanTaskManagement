@@ -317,6 +317,45 @@
     }
 }
 
+.query-bar {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 12px 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+}
+
+.query-bar label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.query-bar input {
+    flex: 1;
+    min-width: 220px;
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid var(--line-strong);
+    background: var(--surface-sunken);
+    color: var(--text);
+    font: inherit;
+    font-size: 13px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.query-bar .hint {
+    flex-basis: 100%;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
 /* ---------- Board ---------- */
 
 .board {
@@ -555,6 +594,173 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+}
+
+.modal.wide {
+    width: min(940px, 100%);
+}
+
+/* Details + activity on the left, compose pinned on the right, so a long
+   activity stream never pushes the text box out of reach. */
+.split-body {
+    display: flex;
+    min-height: 0;
+    flex: 1;
+}
+
+.split-left {
+    flex: 1 1 58%;
+    min-width: 0;
+    border-right: 1px solid var(--line);
+}
+
+.compose.split-right {
+    flex: 0 0 42%;
+    border-top: none;
+    justify-content: flex-start;
+    overflow-y: auto;
+}
+
+.compose.split-right textarea {
+    min-height: 160px;
+}
+
+.load-older {
+    align-self: flex-start;
+    margin-top: 14px;
+}
+
+@media (max-width: 820px) {
+    .split-body {
+        flex-direction: column;
+    }
+    .split-left {
+        border-right: none;
+        border-bottom: 1px solid var(--line);
+    }
+    .compose.split-right {
+        flex: 0 0 auto;
+    }
+}
+
+/* ---------- Forms (new board dialog) ---------- */
+
+.form-row {
+    display: grid;
+    grid-template-columns: minmax(110px, 26%) 1fr;
+    gap: 8px 16px;
+    align-items: start;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+}
+
+.form-row > label,
+.form-row .label-as-text {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding-top: 9px;
+}
+
+.form-row input[type='text'],
+.form-row input[type='search'],
+.form-row select {
+    width: 100%;
+    min-height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--line-strong);
+    background: var(--surface-sunken);
+    color: var(--text);
+    padding: 6px 10px;
+    font: inherit;
+    font-size: 13px;
+}
+
+.form-row .table-select {
+    margin-top: 8px;
+    padding: 4px;
+}
+
+.form-row .hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    line-height: 1.45;
+}
+
+.form-error {
+    background: var(--red-soft);
+    color: var(--red);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-top: 8px;
+    margin-right: 14px;
+    cursor: pointer;
+}
+
+.field-picker {
+    list-style: none;
+    max-height: 240px;
+    overflow-y: auto;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    margin-top: 6px;
+}
+
+.field-picker li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--line);
+}
+
+.field-picker li:last-child {
+    border-bottom: none;
+}
+
+.field-picker .field-name {
+    flex: 1;
+    min-width: 0;
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.field-picker .checkbox {
+    margin-top: 0;
+    margin-right: 0;
+}
+
+.new-board-btn {
+    width: calc(100% - 32px);
+    margin: 8px 16px 4px;
+    padding: 10px;
+    border: 1px dashed var(--line-strong);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--purple);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.new-board-btn:hover {
+    background: var(--purple-soft);
+    border-style: solid;
 }
 
 .modal-header {

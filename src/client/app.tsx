@@ -19,6 +19,7 @@ import { BoardConfig, BoardSummary, Card as CardModel, KanbanError, Settings } f
 import { Card } from './components/Card'
 import { Lane } from './components/Lane'
 import { Sidebar, Toast, Toasts, Toolbar } from './components/Chrome'
+import { NewBoardDialog } from './components/NewBoardDialog'
 import { RecordModal } from './components/RecordModal'
 import { Empty, Failed, Loading, NoAccess, NoBoards } from './components/States'
 
@@ -59,6 +60,10 @@ export default function App(): React.JSX.Element {
     const [search, setSearch] = useState('')
     const [debouncedSearch, setDebouncedSearch] = useState('')
     const [assignedToMe, setAssignedToMe] = useState(false)
+    const [query, setQuery] = useState('')
+    const [debouncedQuery, setDebouncedQuery] = useState('')
+    const [queryOpen, setQueryOpen] = useState(false)
+    const [newBoardOpen, setNewBoardOpen] = useState(false)
 
     // Bumped by the retry button so a failed board-config fetch can be re-run,
     // not just the card fetch (which is a no-op while board is null).
@@ -123,6 +128,13 @@ export default function App(): React.JSX.Element {
         return () => window.clearTimeout(timer)
     }, [search])
 
+    // Longer debounce than search: an encoded query is typed in fragments that
+    // are individually invalid, and each one would otherwise be a round trip.
+    useEffect(() => {
+        const timer = window.setTimeout(() => setDebouncedQuery(query), 600)
+        return () => window.clearTimeout(timer)
+    }, [query])
+
     // ---- board config ------------------------------------------------------
     useEffect(() => {
         if (!boardId) return
@@ -155,7 +167,7 @@ export default function App(): React.JSX.Element {
             if (!boardId || !board) return
             const ticket = ++requestSeq.current
             if (showSpinner) setRefreshing(true)
-            api.cards(boardId, { search: debouncedSearch, assignedToMe })
+            api.cards(boardId, { search: debouncedSearch, assignedToMe, filter: debouncedQuery })
                 .then((payload) => {
                     if (ticket !== requestSeq.current) return
                     setCards(payload.cards)
@@ -172,7 +184,7 @@ export default function App(): React.JSX.Element {
                     setRefreshing(false)
                 })
         },
-        [boardId, board, debouncedSearch, assignedToMe]
+        [boardId, board, debouncedSearch, assignedToMe, debouncedQuery]
     )
 
     useEffect(() => {
@@ -305,10 +317,11 @@ export default function App(): React.JSX.Element {
         lastFocused.current?.focus()
     }
 
-    const hasFilters = debouncedSearch.length > 0 || assignedToMe
+    const hasFilters = debouncedSearch.length > 0 || assignedToMe || debouncedQuery.length > 0
 
     function clearFilters(): void {
         setSearch('')
+        setQuery('')
         setAssignedToMe(false)
     }
 
@@ -377,6 +390,7 @@ export default function App(): React.JSX.Element {
                     onSelect={setBoardId}
                     onToggleTheme={toggleTheme}
                     onHide={() => hideSidebar(true)}
+                    onNewBoard={() => setNewBoardOpen(true)}
                 />
             ) : null}
 
@@ -389,7 +403,11 @@ export default function App(): React.JSX.Element {
                     assignedToMeSupported={board?.capabilities.assigned_to_me_supported ?? false}
                     refreshing={refreshing}
                     sidebarHidden={sidebarHidden}
+                    query={query}
+                    queryOpen={queryOpen}
                     onSearch={setSearch}
+                    onQuery={setQuery}
+                    onToggleQuery={() => setQueryOpen((v) => !v)}
                     onToggleAssigned={() => setAssignedToMe((v) => !v)}
                     onRefresh={() => (board ? loadCards(true) : setReloadKey((k) => k + 1))}
                     onShowSidebar={() => hideSidebar(false)}
@@ -417,6 +435,21 @@ export default function App(): React.JSX.Element {
             </p>
 
             <Toasts toasts={toasts} onDismiss={(id) => setToasts((prev) => prev.filter((t) => t.id !== id))} />
+
+            {newBoardOpen ? (
+                <NewBoardDialog
+                    onClose={() => setNewBoardOpen(false)}
+                    onCreated={(newBoardId) => {
+                        setNewBoardOpen(false)
+                        // Refresh the picker, then switch to what was just made.
+                        void api
+                            .boards()
+                            .then(setBoards)
+                            .catch(() => undefined)
+                            .finally(() => setBoardId(newBoardId))
+                    }}
+                />
+            ) : null}
 
             {openRecord && board ? (
                 <RecordModal

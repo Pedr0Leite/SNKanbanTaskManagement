@@ -47,6 +47,16 @@ CrossScopePrivilege({
     status: 'allowed',
 })
 
+// Field discovery for board authoring reads the dictionary directly.
+CrossScopePrivilege({
+    $id: Now.ID['xs-sys-dictionary-read'],
+    targetName: 'sys_dictionary',
+    targetType: 'sys_db_object',
+    targetScope: 'global',
+    operation: 'read',
+    status: 'allowed',
+})
+
 CrossScopePrivilege({
     $id: Now.ID['xs-sys-user-read'],
     targetName: 'sys_user',

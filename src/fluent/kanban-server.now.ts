@@ -29,6 +29,15 @@ ScriptInclude({
 })
 
 ScriptInclude({
+    $id: Now.ID['si-admin-service'],
+    name: 'KanbanAdminService',
+    description: 'Board authoring: table discovery, field discovery and board creation.',
+    script: Now.include('../server/KanbanAdminService.js'),
+    accessibleFrom: 'package_private',
+    active: true,
+})
+
+ScriptInclude({
     $id: Now.ID['si-api'],
     name: 'KanbanApi',
     description: 'Response envelope, error mapping and user preference storage.',
@@ -207,6 +216,68 @@ RestApi({
             String(body.field || ''),
             body.value
         );
+    });
+})(request, response);`,
+        },
+        {
+            $id: Now.ID['route-tables'],
+            name: 'List task tables',
+            method: 'GET',
+            path: '/tables',
+            version: 1,
+            shortDescription: 'Every table that extends task, for the board creation picker.',
+            script: `(function (request, response) {
+    var api = new KanbanApi();
+    api.guard(response, function () { return new KanbanAdminService().listTaskTables(); });
+})(request, response);`,
+        },
+        {
+            $id: Now.ID['route-fields'],
+            name: 'List table fields',
+            method: 'GET',
+            path: '/tables/{table}/fields',
+            version: 1,
+            shortDescription: 'Displayable fields on a task child, for board configuration.',
+            script: `(function (request, response) {
+    var api = new KanbanApi();
+    api.guard(response, function () {
+        return new KanbanAdminService().listFields(request.pathParams.table);
+    });
+})(request, response);`,
+        },
+        {
+            $id: Now.ID['route-create-board'],
+            name: 'Create board',
+            method: 'POST',
+            path: '/boards',
+            version: 1,
+            shortDescription: 'Create a board over any table that extends task.',
+            script: `(function (request, response) {
+    var api = new KanbanApi();
+    api.guard(response, function () {
+        var body = request.body ? request.body.data : {};
+        return new KanbanAdminService().createBoard(body || {});
+    });
+})(request, response);`,
+        },
+        {
+            $id: Now.ID['route-journal-page'],
+            name: 'Get activity page',
+            method: 'GET',
+            path: '/record/{table}/{sysId}/journal',
+            version: 1,
+            shortDescription: 'A page of the activity stream, for loading older entries.',
+            script: `(function (request, response) {
+    var api = new KanbanApi();
+    api.guard(response, function () {
+        var q = request.queryParams || {};
+        var first = function (key) {
+            var v = q[key];
+            if (v === undefined || v === null) return '';
+            return String(Array.isArray(v) ? (v[0] || '') : v);
+        };
+        return new KanbanRecordService().getJournalPage(
+            first('board'), request.pathParams.table, request.pathParams.sysId, first('offset'));
     });
 })(request, response);`,
         },
