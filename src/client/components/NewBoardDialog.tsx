@@ -16,6 +16,7 @@ export function NewBoardDialog({ onClose, onCreated }: NewBoardDialogProps): Rea
     const [tables, setTables] = useState<TableOption[]>([])
     const [tableFilter, setTableFilter] = useState('')
     const [pickerOpen, setPickerOpen] = useState(false)
+    const [fieldFilter, setFieldFilter] = useState('')
     const [fields, setFields] = useState<FieldOption[]>([])
     const [lanes, setLanes] = useState<FieldChoices | null>(null)
 
@@ -119,6 +120,21 @@ export function NewBoardDialog({ onClose, onCreated }: NewBoardDialogProps): Rea
 
     const labelOf = (fieldName: string): string =>
         fields.find((f) => f.name === fieldName)?.label ?? fieldName
+
+    // Selected fields stay pinned at the top, so they never scroll out of sight
+    // behind a search that no longer matches them.
+    const pickableFields = useMemo(() => {
+        const q = fieldFilter.trim().toLowerCase()
+        const candidates = fields.filter((f) => f.name !== titleField && f.name !== subtitleField)
+        const matches = q
+            ? candidates.filter(
+                  (f) => f.label.toLowerCase().includes(q) || f.name.toLowerCase().includes(q)
+              )
+            : candidates
+        const selected = candidates.filter((f) => cardFields.includes(f.name))
+        const rest = matches.filter((f) => !cardFields.includes(f.name))
+        return [...selected, ...rest]
+    }, [fields, fieldFilter, titleField, subtitleField, cardFields])
 
     function toggleCardField(fieldName: string): void {
         setCardFields((prev) =>
@@ -421,22 +437,44 @@ export function NewBoardDialog({ onClose, onCreated }: NewBoardDialogProps): Rea
                                 </div>
 
                                 <div className="nb-field">
-                                    <span className="nb-label-text">Extra fields on the card</span>
+                                    <label htmlFor="nb-field-search">Extra fields on the card</label>
+                                    <input
+                                        id="nb-field-search"
+                                        type="search"
+                                        value={fieldFilter}
+                                        placeholder="Search fields"
+                                        onChange={(e) => setFieldFilter(e.target.value)}
+                                    />
+                                    <p className="nb-picked">
+                                        <span>
+                                            {cardFields.length === 0
+                                                ? 'None selected'
+                                                : `${cardFields.length} selected`}
+                                        </span>
+                                        {cardFields.length > 0 ? (
+                                            <button type="button" onClick={() => setCardFields([])}>
+                                                Clear
+                                            </button>
+                                        ) : null}
+                                    </p>
                                     <ul className="nb-chips">
-                                        {fields
-                                            .filter((f) => f.name !== titleField && f.name !== subtitleField)
-                                            .map((f) => (
-                                                <li key={f.name}>
-                                                    <button
-                                                        type="button"
-                                                        className={`nb-chip${cardFields.includes(f.name) ? ' on' : ''}`}
-                                                        aria-pressed={cardFields.includes(f.name)}
-                                                        onClick={() => toggleCardField(f.name)}
-                                                    >
-                                                        {f.label}
-                                                    </button>
-                                                </li>
-                                            ))}
+                                        {pickableFields.map((f) => (
+                                            <li key={f.name}>
+                                                <button
+                                                    type="button"
+                                                    className={`nb-chip${cardFields.includes(f.name) ? ' on' : ''}`}
+                                                    aria-pressed={cardFields.includes(f.name)}
+                                                    onClick={() => toggleCardField(f.name)}
+                                                >
+                                                    {f.label}
+                                                </button>
+                                            </li>
+                                        ))}
+                                        {pickableFields.length === 0 ? (
+                                            <li className="nb-chips-empty">
+                                                No field matches “{fieldFilter}”.
+                                            </li>
+                                        ) : null}
                                     </ul>
                                 </div>
                             </>
