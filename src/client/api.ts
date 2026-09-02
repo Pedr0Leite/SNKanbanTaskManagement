@@ -27,6 +27,28 @@ interface Envelope<T> {
 }
 
 /**
+ * Pull our envelope out of the platform's.
+ *
+ * A Scripted REST endpoint wraps whatever response.setBody() is given inside a
+ * `result` property, so the wire format is {"result":{"status":"ok","data":…}}
+ * rather than the {"status":"ok","data":…} the handlers write. Reading status
+ * off the top level therefore found `undefined` and rejected every successful
+ * response as malformed.
+ *
+ * Both shapes are accepted so the client keeps working if the endpoint is ever
+ * served through something that does not wrap (a stream writer, a proxy).
+ */
+function unwrap<T>(raw: unknown): Envelope<T> {
+    if (!raw || typeof raw !== 'object') return {} as Envelope<T>
+
+    const outer = raw as { result?: unknown; status?: unknown }
+    if (outer.status === undefined && outer.result && typeof outer.result === 'object') {
+        return outer.result as Envelope<T>
+    }
+    return raw as Envelope<T>
+}
+
+/**
  * Single fetch wrapper. Validates the envelope at the boundary so no component
  * ever has to guess whether it received data or an error, and enforces the 15s
  * ceiling the optimistic-move contract depends on.
@@ -65,9 +87,9 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
         window.clearTimeout(timer)
     }
 
-    let body: Envelope<T>
+    let raw: unknown
     try {
-        body = (await response.json()) as Envelope<T>
+        raw = await response.json()
     } catch {
         throw new KanbanError(
             {
@@ -79,6 +101,8 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
             null
         )
     }
+
+    const body = unwrap<T>(raw)
 
     if (body.status === 'ok' && body.data !== undefined) return body.data
 
