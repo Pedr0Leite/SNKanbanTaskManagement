@@ -228,8 +228,17 @@ KanbanRecordService.prototype = {
         }
 
         var correlationId = gs.generateGUID()
-        rec.setValue(laneField, toLane)
-        var result = rec.update()
+
+        // Same reason as addJournal: authorise with GlideRecordSecure above,
+        // then write with GlideRecord, whose setValue/update the scope may
+        // actually call. GlideRecordSecure.setValue is refused over REST and
+        // fails silently while reporting success.
+        var writer = new GlideRecord(table)
+        if (!writer.get(sysId)) {
+            return this._err('not_found', 'That record could not be re-read for writing.')
+        }
+        writer.setValue(laneField, toLane)
+        var result = writer.update()
 
         // Confirm against storage, never against the writer's own copy.
         var verify = new GlideRecord(table)
@@ -303,8 +312,20 @@ KanbanRecordService.prototype = {
         var before = this.getJournal(sysId)
         var newestBefore = before.entries.length > 0 ? before.entries[0].sys_id : ''
         var correlationId = gs.generateGUID()
-        rec.setValue(field, text)
-        var result = rec.update()
+
+        // Read and authorise with GlideRecordSecure, but WRITE with GlideRecord.
+        // GlideRecordSecure.setValue is fenced separately from
+        // GlideRecord.setValue and is refused in a REST transaction: the call
+        // silently does nothing, update() then finds no changes and returns the
+        // sys_id, so the write looks successful and never happened (verified
+        // 2026-09-02). Access is already decided above, so this grants nothing
+        // extra — it only uses an API the scope is actually allowed to call.
+        var writer = new GlideRecord(table)
+        if (!writer.get(sysId)) {
+            return this._err('not_found', 'That record could not be re-read for writing.')
+        }
+        writer.setValue(field, text)
+        var result = writer.update()
 
         var after = this.getJournal(sysId)
         var newestAfter = after.entries.length > 0 ? after.entries[0].sys_id : ''

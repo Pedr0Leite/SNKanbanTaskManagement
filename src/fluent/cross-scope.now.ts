@@ -113,6 +113,27 @@ CrossScopePrivilege({
     status: 'allowed',
 })
 
+// Added for the Case board created on this instance. Every new board table
+// needs a pair like this — see docs/CONFIG.md.
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-case-read'],
+    targetName: 'sn_customerservice_case',
+    targetType: 'sys_db_object',
+    targetScope: 'global',
+    operation: 'read',
+    status: 'allowed',
+})
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-case-write'],
+    targetName: 'sn_customerservice_case',
+    targetType: 'sys_db_object',
+    targetScope: 'global',
+    operation: 'write',
+    status: 'allowed',
+})
+
 // ---- Scriptable APIs -------------------------------------------------------
 
 CrossScopePrivilege({
@@ -184,6 +205,55 @@ CrossScopePrivilege({
 CrossScopePrivilege({
     $id: Now.ID['xs-result-setstatus'],
     targetName: 'ScriptableServiceResultBuilder.setStatus',
+    targetType: 'scriptable',
+    targetScope: 'global',
+    operation: 'execute',
+    status: 'allowed',
+})
+
+// GlideRecordSecure methods are fenced separately from GlideRecord ones.
+// Writes go through GlideRecord for exactly that reason, but the read side
+// still needs these.
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-grs-setvalue'],
+    targetName: 'GlideRecordSecure.setValue',
+    targetType: 'scriptable',
+    targetScope: 'global',
+    operation: 'execute',
+    status: 'allowed',
+})
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-grs-update'],
+    targetName: 'GlideRecordSecure.update',
+    targetType: 'scriptable',
+    targetScope: 'global',
+    operation: 'execute',
+    status: 'allowed',
+})
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-grs-getdisplayvalue'],
+    targetName: 'GlideRecordSecure.getDisplayValue',
+    targetType: 'scriptable',
+    targetScope: 'global',
+    operation: 'execute',
+    status: 'allowed',
+})
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-scoped-gliderecord'],
+    targetName: 'ScopedGlideRecord',
+    targetType: 'scriptable',
+    targetScope: 'global',
+    operation: 'execute',
+    status: 'allowed',
+})
+
+CrossScopePrivilege({
+    $id: Now.ID['xs-scoped-glideelement'],
+    targetName: 'ScopedGlideElement',
     targetType: 'scriptable',
     targetScope: 'global',
     operation: 'execute',

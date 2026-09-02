@@ -266,6 +266,14 @@ declare global {
                         table: 'sys_scope_privilege'
                         id: 'c3d2c5434ca74024b9192aeb9a888463'
                     }
+                    'xs-case-read': {
+                        table: 'sys_scope_privilege'
+                        id: 'fe7562b928ca42d9888c508365de03a6'
+                    }
+                    'xs-case-write': {
+                        table: 'sys_scope_privilege'
+                        id: '51c17839c8cb4173a184a49394565766'
+                    }
                     'xs-gr-setvalue': {
                         table: 'sys_scope_privilege'
                         id: '95abd519f61141aea138be691277b4f0'
@@ -278,6 +286,10 @@ declare global {
                         table: 'sys_scope_privilege'
                         id: '039e5071802f4dbbbdfe2a56a63dfcb5'
                     }
+                    'xs-grs-getdisplayvalue': {
+                        table: 'sys_scope_privilege'
+                        id: '58ece61169594c7b844ed59af5cdab7f'
+                    }
                     'xs-grs-getvalue': {
                         table: 'sys_scope_privilege'
                         id: 'f1682923de45429b849c077c813056b0'
@@ -285,6 +297,14 @@ declare global {
                     'xs-grs-orderby': {
                         table: 'sys_scope_privilege'
                         id: '3e46190c87c04e859a2313a3dd256bb4'
+                    }
+                    'xs-grs-setvalue': {
+                        table: 'sys_scope_privilege'
+                        id: '5e1978ce439046e4ae8d3254eae479ed'
+                    }
+                    'xs-grs-update': {
+                        table: 'sys_scope_privilege'
+                        id: '192ee141b137465ab15c84af475625f5'
                     }
                     'xs-incident-read': {
                         table: 'sys_scope_privilege'
@@ -301,6 +321,14 @@ declare global {
                     'xs-result-setstatus': {
                         table: 'sys_scope_privilege'
                         id: '534e28893181496bab6ae105af7584ad'
+                    }
+                    'xs-scoped-glideelement': {
+                        table: 'sys_scope_privilege'
+                        id: '25fde04cb9df44919a271f159c4dc6a3'
+                    }
+                    'xs-scoped-gliderecord': {
+                        table: 'sys_scope_privilege'
+                        id: '9dfbe419adba433181b51495f1c364bc'
                     }
                     'xs-sys-choice-read': {
                         table: 'sys_scope_privilege'
