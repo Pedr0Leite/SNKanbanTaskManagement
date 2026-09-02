@@ -3,6 +3,7 @@ import {
     BoardSummary,
     Card,
     CardsPayload,
+    FieldChoices,
     FieldOption,
     JournalEntry,
     JournalPage,
@@ -160,6 +161,11 @@ export const api = {
         call<{ table: string; fields: FieldOption[] }>(
             `/tables/${encodeURIComponent(table)}/fields`
         ).then((d) => d.fields),
+
+    fieldChoices: (table: string, field: string) =>
+        call<FieldChoices>(
+            `/tables/${encodeURIComponent(table)}/fields/${encodeURIComponent(field)}/choices`
+        ),
 
     createBoard: (board: NewBoard) =>
         call<{ sys_id: string; name: string; table: string; lanes: number; fields_created: number }>(

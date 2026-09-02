@@ -88,8 +88,9 @@ KanbanAdminService.prototype = {
      * @returns {{ok: boolean, data: object}}
      */
     listFields: function (table) {
-        var guard = this._requireAdmin()
-        if (guard) return guard
+        // Deliberately not admin-only: the condition builder needs field labels
+        // for every user. Labels are not sensitive, and record visibility is
+        // still decided by GlideRecordSecure when the query actually runs.
         if (!table) return this._err('bad_request', 'No table specified.')
 
         var hierarchy = this.choiceUtil.getHierarchy(table)
@@ -144,6 +145,35 @@ KanbanAdminService.prototype = {
         }
 
         return { ok: true, data: { table: table, fields: fields } }
+    },
+
+    /**
+     * Resolved choices for one field. Serves both the condition builder's value
+     * dropdown and the new-board dialog's live lane preview, which are the same
+     * question asked twice.
+     *
+     * @param {string} table
+     * @param {string} element
+     * @returns {{ok: boolean, data: object}}
+     */
+    fieldChoices: function (table, element) {
+        if (!table || !element) return this._err('bad_request', 'Table and field are both required.')
+        if (!this.choiceUtil.extendsTable(table, 'task')) {
+            return this._err('bad_request', '"' + table + '" does not extend task.')
+        }
+
+        var resolved = this.choiceUtil.getChoices(table, element)
+        return {
+            ok: true,
+            data: {
+                table: table,
+                field: element,
+                resolvable: resolved.ok,
+                source: resolved.source,
+                reason: resolved.error,
+                choices: resolved.choices,
+            },
+        }
     },
 
     /**

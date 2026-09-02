@@ -112,6 +112,15 @@ export interface FieldOption {
     lane_capable: boolean
 }
 
+export interface FieldChoices {
+    table: string
+    field: string
+    resolvable: boolean
+    source: string
+    reason: string
+    choices: { value: string; label: string; sequence: number }[]
+}
+
 export interface NewBoard {
     name: string
     table: string

@@ -93,7 +93,6 @@ export interface ToolbarProps {
     refreshing: boolean
     sidebarHidden: boolean
     onSearch: (value: string) => void
-    onQuery: (value: string) => void
     onToggleQuery: () => void
     onToggleAssigned: () => void
     onRefresh: () => void
@@ -111,14 +110,12 @@ export function Toolbar({
     refreshing,
     sidebarHidden,
     onSearch,
-    onQuery,
     onToggleQuery,
     onToggleAssigned,
     onRefresh,
     onShowSidebar,
 }: ToolbarProps): React.JSX.Element {
     return (
-        <>
         <header className="topbar">
             {sidebarHidden ? (
                 <button type="button" className="icon-btn" onClick={onShowSidebar} aria-label="Show sidebar">
@@ -168,30 +165,6 @@ export function Toolbar({
                 &#8635;
             </button>
         </header>
-
-        {queryOpen ? (
-            <div className="query-bar">
-                <label htmlFor="kanban-query">Encoded query</label>
-                <input
-                    id="kanban-query"
-                    type="text"
-                    value={query}
-                    spellCheck={false}
-                    placeholder="priority&lt;=2^assigned_toISNOTEMPTY"
-                    onChange={(e) => onQuery(e.target.value)}
-                />
-                {query ? (
-                    <button type="button" className="chip-btn" onClick={() => onQuery('')}>
-                        Clear
-                    </button>
-                ) : null}
-                <p className="hint">
-                    Narrows the board’s own filter — it can never widen it. Copy one from a list’s
-                    “Copy query”.
-                </p>
-            </div>
-        ) : null}
-        </>
     )
 }
 

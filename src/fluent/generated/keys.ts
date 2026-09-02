@@ -174,6 +174,10 @@ declare global {
                         table: 'sys_ws_operation'
                         id: '12e012d5a0b34405a35d5931a4731eb2'
                     }
+                    'route-field-choices': {
+                        table: 'sys_ws_operation'
+                        id: '0c1c1902139c4dfa8afdea3553307c24'
+                    }
                     'route-fields': {
                         table: 'sys_ws_operation'
                         id: 'b1fee19be926416d9a88249bc2b43573'

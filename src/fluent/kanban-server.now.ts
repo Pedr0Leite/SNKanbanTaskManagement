@@ -246,6 +246,21 @@ RestApi({
 })(request, response);`,
         },
         {
+            $id: Now.ID['route-field-choices'],
+            name: 'Get field choices',
+            method: 'GET',
+            path: '/tables/{table}/fields/{field}/choices',
+            version: 1,
+            shortDescription: 'Resolved choice list for a field: lane preview and condition values.',
+            script: `(function (request, response) {
+    var api = new KanbanApi();
+    api.guard(response, function () {
+        return new KanbanAdminService().fieldChoices(
+            request.pathParams.table, request.pathParams.field);
+    });
+})(request, response);`,
+        },
+        {
             $id: Now.ID['route-create-board'],
             name: 'Create board',
             method: 'POST',

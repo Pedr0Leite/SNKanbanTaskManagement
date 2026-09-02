@@ -19,6 +19,7 @@ import { BoardConfig, BoardSummary, Card as CardModel, KanbanError, Settings } f
 import { Card } from './components/Card'
 import { Lane } from './components/Lane'
 import { Sidebar, Toast, Toasts, Toolbar } from './components/Chrome'
+import { ConditionBuilder } from './components/ConditionBuilder'
 import { NewBoardDialog } from './components/NewBoardDialog'
 import { RecordModal } from './components/RecordModal'
 import { Empty, Failed, Loading, NoAccess, NoBoards } from './components/States'
@@ -406,12 +407,20 @@ export default function App(): React.JSX.Element {
                     query={query}
                     queryOpen={queryOpen}
                     onSearch={setSearch}
-                    onQuery={setQuery}
                     onToggleQuery={() => setQueryOpen((v) => !v)}
                     onToggleAssigned={() => setAssignedToMe((v) => !v)}
                     onRefresh={() => (board ? loadCards(true) : setReloadKey((k) => k + 1))}
                     onShowSidebar={() => hideSidebar(false)}
                 />
+
+                {queryOpen && board ? (
+                    <ConditionBuilder
+                        table={board.table}
+                        value={query}
+                        onChange={setQuery}
+                        onClose={() => setQueryOpen(false)}
+                    />
+                ) : null}
 
                 {capped && board ? (
                     <p className="meta-text" style={{ padding: '10px 24px 0' }}>
