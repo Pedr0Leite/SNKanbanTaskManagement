@@ -1,0 +1,383 @@
+/*
+ * Part of the stylesheet split out of the former single app.css.
+ *
+ * @servicenow/isomorphic-rollup inlines an imported stylesheet into the JS
+ * bundle only while it is under 14 KB (shouldExtract: fileContent.length >
+ * 14 * 1024 -- hard-coded, not configurable). Anything larger is pushed to a
+ * sys_ux_theme_asset record and linked as /uxta/<id>.assetx, a table whose
+ * read ACLs require ui_builder_admin or virtual_agent_admin -- so ordinary
+ * board users get no stylesheet at all. Keep every one of these files well
+ * under 14 KB; now.prebuild.mjs fails the build if one goes over.
+ *
+ * Import order in app.tsx is the cascade order, and matches the old file.
+ */
+/* The Plus Jakarta Sans @font-face is linked from index.html, not @import-ed
+   here: the bundler concatenates stylesheets, which would leave the @import
+   below other rules and make it invalid. --font falls back to the system stack
+   if the link is blocked. */
+
+/* Layout follows the Frontend Mentor reference: 300px sidebar, 96px header bar,
+   288px columns on a horizontally scrolling board. Sizing is percentage- and
+   flex-based rather than the reference's 100vw/100vh, because we render inside
+   a host page rather than owning the viewport. */
+
+.kanban-root {
+    font-family: var(--font);
+    color: var(--text);
+    background: var(--surface-sunken);
+    display: flex;
+    height: 100%;
+    min-height: 480px;
+    overflow: hidden;
+}
+
+.kanban-root *,
+.kanban-root *::before,
+.kanban-root *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.kanban-root button {
+    font: inherit;
+    cursor: pointer;
+}
+
+.kanban-root :focus-visible {
+    outline: 2px solid var(--purple);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ---------- Sidebar ---------- */
+
+.sidebar {
+    width: 300px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    transition: width 0.2s ease, opacity 0.2s ease;
+}
+
+.sidebar[hidden] {
+    display: none;
+}
+
+.sidebar-brand {
+    height: 96px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--line);
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.4px;
+}
+
+.sidebar-brand .mark {
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
+    background: var(--purple);
+    flex-shrink: 0;
+}
+
+.sidebar-heading {
+    padding: 20px 24px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2.4px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.board-list {
+    list-style: none;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.board-btn {
+    width: calc(100% - 24px);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 0 var(--radius-control) var(--radius-control) 0;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 15px;
+    font-weight: 700;
+    text-align: left;
+}
+
+.board-btn:hover:not(.active) {
+    background: var(--purple-soft);
+    color: var(--purple);
+}
+
+.board-btn.active {
+    background: var(--purple);
+    color: var(--text-on-accent);
+}
+
+.board-btn .board-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    border-radius: 3px;
+    border: 2px solid currentColor;
+}
+
+.sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 14px;
+    border: none;
+    border-radius: 6px;
+    background: var(--surface-sunken);
+    color: var(--text-muted);
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.theme-toggle .switch {
+    width: 40px;
+    height: 20px;
+    border-radius: 10px;
+    background: var(--purple);
+    position: relative;
+    flex-shrink: 0;
+}
+
+.theme-toggle .switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.2s ease;
+}
+
+.kanban-root[data-theme='dark'] .theme-toggle .switch::after {
+    transform: translateX(20px);
+}
+
+.sidebar-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-muted);
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.sidebar-toggle:hover {
+    background: var(--purple-soft);
+    color: var(--purple);
+}
+
+/* ---------- Main column ---------- */
+
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.topbar {
+    height: 96px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 24px;
+}
+
+.topbar h1 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.topbar .table-chip {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 3px 9px;
+    white-space: nowrap;
+}
+
+.topbar .spacer {
+    flex: 1;
+}
+
+.search {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search input {
+    width: 220px;
+}
+
+/* ---------- Search inputs ----------
+   After uiverse.io/LightAndy1/tidy-pig-67: no border at all — a box-shadow
+   ring that thickens on hover, and the field dips on press. Its palette is
+   this app's dark theme already (#2b2c37 / #20212c), so the colours are taken
+   from the tokens and the light theme comes out right for free.
+   The magnifier is a background image rather than markup: three call sites,
+   no JSX to touch, and one grey (#828FA3, same as the select chevron) that
+   reads on both surfaces. */
+
+.search input,
+.ref-field input,
+.nb-field input[type='search'] {
+    height: 45px;
+    padding: 0 14px 0 2.5rem;
+    border: 0;
+    border-radius: 12px;
+    background-color: var(--surface-sunken);
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23828FA3'%3E%3Cpath d='M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left 1rem center;
+    background-size: 1rem 1rem;
+    box-shadow: 0 0 0 1.5px var(--line-strong), 0 0 25px -17px rgba(0, 0, 0, 0.9);
+    color: var(--text);
+    font: inherit;
+    font-size: 13px;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: box-shadow 0.25s cubic-bezier(0.19, 1, 0.22, 1),
+        transform 0.25s cubic-bezier(0.19, 1, 0.22, 1);
+    cursor: text;
+}
+
+.search input::placeholder,
+.ref-field input::placeholder,
+.nb-field input[type='search']::placeholder {
+    color: var(--text-muted);
+}
+
+.search input:hover,
+.ref-field input:hover,
+.nb-field input[type='search']:hover {
+    box-shadow: 0 0 0 2.5px var(--line-strong), 0 0 25px -15px rgba(0, 0, 0, 0.9);
+}
+
+.search input:active,
+.ref-field input:active,
+.nb-field input[type='search']:active {
+    transform: scale(0.98);
+}
+
+/* The ring IS the focus indicator here, so it replaces the global outline
+   rather than stacking a second ring outside it. Purple, and thicker than
+   hover, so focus stays unmistakable. */
+.search input:focus,
+.search input:focus-visible,
+.ref-field input:focus,
+.ref-field input:focus-visible,
+.nb-field input[type='search']:focus,
+.nb-field input[type='search']:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2.5px var(--purple);
+}
+
+.chip-btn {
+    height: 40px;
+    padding: 0 18px;
+    border-radius: var(--radius-control);
+    border: 1px solid var(--line);
+    background: var(--surface-sunken);
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.chip-btn:hover {
+    border-color: var(--purple);
+    color: var(--purple);
+}
+
+.chip-btn[aria-pressed='true'] {
+    background: var(--purple);
+    border-color: var(--purple);
+    color: var(--text-on-accent);
+}
+
+.icon-btn {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--surface-sunken);
+    color: var(--text-muted);
+    font-size: 15px;
+}
+
+.icon-btn:hover {
+    border-color: var(--purple);
+    color: var(--purple);
+}
+
+.icon-btn[data-busy='true'] {
+    animation: kanban-spin 0.9s linear infinite;
+}
+
+@keyframes kanban-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+

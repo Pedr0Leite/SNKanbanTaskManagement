@@ -11,8 +11,16 @@ import {
     useSensors,
 } from '@dnd-kit/core'
 
+// One stylesheet per import, each under the SDK's 14 KB inline threshold, in
+// cascade order. See the header comment in any of them for why the old single
+// app.css could not be delivered.
 import './theme.css'
-import './app.css'
+import './shell.css'
+import './board.css'
+import './modal.css'
+import './new-board.css'
+import './preview.css'
+import './states.css'
 
 import { api } from './api'
 import { BoardConfig, BoardSummary, Card as CardModel, KanbanError, Settings } from './types'

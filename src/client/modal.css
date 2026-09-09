@@ -1,0 +1,252 @@
+/*
+ * Part of the stylesheet split out of the former single app.css.
+ *
+ * @servicenow/isomorphic-rollup inlines an imported stylesheet into the JS
+ * bundle only while it is under 14 KB (shouldExtract: fileContent.length >
+ * 14 * 1024 -- hard-coded, not configurable). Anything larger is pushed to a
+ * sys_ux_theme_asset record and linked as /uxta/<id>.assetx, a table whose
+ * read ACLs require ui_builder_admin or virtual_agent_admin -- so ordinary
+ * board users get no stylesheet at all. Keep every one of these files well
+ * under 14 KB; now.prebuild.mjs fails the build if one goes over.
+ *
+ * Import order in app.tsx is the cascade order, and matches the old file.
+ */
+/* ---------- Modal ---------- */
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 1, 18, 0.5);
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    z-index: 50;
+}
+
+.modal {
+    width: min(520px, 100%);
+    max-height: min(85vh, 760px);
+    background: var(--surface);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-modal);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.modal.wide {
+    width: min(940px, 100%);
+}
+
+/* Details + activity on the left, compose pinned on the right, so a long
+   activity stream never pushes the text box out of reach. */
+.split-body {
+    display: flex;
+    min-height: 0;
+    flex: 1;
+}
+
+.split-left {
+    flex: 1 1 58%;
+    min-width: 0;
+    min-height: 0;
+    border-right: 1px solid var(--line);
+}
+
+.compose.split-right {
+    flex: 0 0 42%;
+    min-height: 0;
+    border-top: none;
+    justify-content: flex-start;
+    overflow-y: auto;
+}
+
+.compose.split-right textarea {
+    min-height: 160px;
+}
+
+.load-older {
+    align-self: flex-start;
+    margin-top: 14px;
+}
+
+@media (max-width: 820px) {
+    .split-body {
+        flex-direction: column;
+    }
+    .split-left {
+        border-right: none;
+        border-bottom: 1px solid var(--line);
+    }
+    .compose.split-right {
+        flex: 0 0 auto;
+    }
+}
+
+/* ---------- Condition builder ----------
+   The ServiceNow filter idiom rebuilt in this app's tokens: a readable
+   breadcrumb of what is being shown, then one row per condition. */
+
+.qb {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 18px 24px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    box-shadow: inset 0 3px 0 0 var(--purple);
+}
+
+.qb-breadcrumb {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: var(--purple-soft);
+}
+
+.qb-crumb-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+.qb-crumb {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--text);
+    min-width: 0;
+    word-break: break-word;
+}
+
+.qb-rows {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.qb-row {
+    display: grid;
+    grid-template-columns: 78px minmax(120px, 1.1fr) minmax(120px, 1fr) minmax(120px, 1.2fr) 32px;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--purple);
+    border-radius: 8px;
+    background: var(--surface-sunken);
+}
+
+.qb-row:focus-within {
+    border-color: var(--purple);
+    border-left-color: var(--purple);
+}
+
+.qb-join {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.qb-join select {
+    width: 100%;
+}
+
+.qb select,
+.qb input {
+    min-height: 34px;
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+    color: var(--text);
+    padding: 4px 8px;
+    font: inherit;
+    font-size: 13px;
+}
+
+.qb select:hover,
+.qb input:hover {
+    border-color: var(--purple);
+}
+
+.qb-value-none {
+    color: var(--text-muted);
+    text-align: center;
+    font-size: 13px;
+}
+
+.qb-remove {
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.qb-remove:hover {
+    background: var(--red-soft);
+    color: var(--red);
+}
+
+.qb-empty {
+    font-size: 13px;
+    color: var(--text-muted);
+    padding: 14px;
+    border: 1px dashed var(--line-strong);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.qb-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.qb-spacer {
+    flex: 1;
+}
+
+.qb-encoded {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--surface-sunken);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 7px 10px;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.qb-raw {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.qb-raw label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.qb-raw input {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+

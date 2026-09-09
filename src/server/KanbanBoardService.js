@@ -228,7 +228,6 @@ KanbanBoardService.prototype = {
                 label: ov.getValue('label_override'),
                 hidden: ov.getValue('hidden') === '1' || ov.getValue('hidden') === 'true',
                 order: ov.getValue('order') === '' ? null : parseInt(ov.getValue('order'), 10),
-                wip_limit: parseInt(ov.getValue('wip_limit'), 10) || 0,
                 accent: ov.getValue('accent_colour'),
             }
         }
@@ -242,7 +241,6 @@ KanbanBoardService.prototype = {
                 value: choice.value,
                 label: o.label || choice.label,
                 order: o.order === null || o.order === undefined ? choice.sequence : o.order,
-                wip_limit: o.wip_limit || 0,
                 accent: o.accent || '',
             })
         }

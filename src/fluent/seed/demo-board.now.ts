@@ -134,7 +134,6 @@ Record({
         value: '1',
         accent_colour: '#49C4E5',
         order: 100,
-        wip_limit: 0,
         hidden: false,
     },
 })
@@ -149,7 +148,6 @@ Record({
         value: '2',
         accent_colour: '#8471F2',
         order: 200,
-        wip_limit: 5,
         hidden: false,
     },
 })
@@ -164,7 +162,6 @@ Record({
         value: '3',
         accent_colour: '#F2C94C',
         order: 300,
-        wip_limit: 0,
         hidden: false,
     },
 })
@@ -179,7 +176,6 @@ Record({
         value: '6',
         accent_colour: '#67E2AE',
         order: 400,
-        wip_limit: 0,
         hidden: false,
     },
 })
@@ -194,7 +190,6 @@ Record({
         value: '7',
         accent_colour: '#828FA3',
         order: 500,
-        wip_limit: 0,
         hidden: false,
     },
 })
@@ -209,7 +204,6 @@ Record({
         board: Now.ref('x_335329_sn_ktm_board', 'board-demo'),
         value: '8',
         order: 600,
-        wip_limit: 0,
         hidden: true,
     },
 })

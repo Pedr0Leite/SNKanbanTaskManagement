@@ -16,7 +16,6 @@ export interface Lane {
     value: string
     label: string
     order: number
-    wip_limit: number
     accent: string
 }
 

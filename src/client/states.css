@@ -1,0 +1,163 @@
+/*
+ * Part of the stylesheet split out of the former single app.css.
+ *
+ * @servicenow/isomorphic-rollup inlines an imported stylesheet into the JS
+ * bundle only while it is under 14 KB (shouldExtract: fileContent.length >
+ * 14 * 1024 -- hard-coded, not configurable). Anything larger is pushed to a
+ * sys_ux_theme_asset record and linked as /uxta/<id>.assetx, a table whose
+ * read ACLs require ui_builder_admin or virtual_agent_admin -- so ordinary
+ * board users get no stylesheet at all. Keep every one of these files well
+ * under 14 KB; now.prebuild.mjs fails the build if one goes over.
+ *
+ * Import order in app.tsx is the cascade order, and matches the old file.
+ */
+/* ---------- States ---------- */
+
+.state-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 48px 24px;
+    text-align: center;
+}
+
+.state-panel .glyph {
+    font-size: 32px;
+    line-height: 1;
+}
+
+.state-panel h2 {
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.state-panel p {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    max-width: 46ch;
+    line-height: 1.6;
+}
+
+.state-panel .correlation {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.skeleton-board {
+    display: flex;
+    gap: var(--gutter);
+    padding: 24px;
+}
+
+.skeleton-lane {
+    width: var(--lane-width);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.skeleton-bar,
+.skeleton-card {
+    border-radius: var(--radius-card);
+    background: linear-gradient(90deg, var(--line) 25%, var(--surface) 50%, var(--line) 75%);
+    background-size: 400% 100%;
+    animation: kanban-shimmer 1.4s ease infinite;
+}
+
+.skeleton-bar {
+    height: 14px;
+    width: 60%;
+    border-radius: 7px;
+}
+
+.skeleton-card {
+    height: 84px;
+}
+
+@keyframes kanban-shimmer {
+    from {
+        background-position: 100% 0;
+    }
+    to {
+        background-position: 0 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .kanban-root *,
+    .kanban-root *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ---------- Toasts ---------- */
+
+.toasts {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 60;
+    max-width: min(400px, calc(100% - 40px));
+}
+
+.toast {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--purple);
+    border-radius: 8px;
+    box-shadow: var(--shadow-modal);
+    padding: 12px 14px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.toast[data-tone='error'] {
+    border-left-color: var(--red);
+}
+
+.toast-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.toast strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.toast p {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.45;
+}
+
+.toast button {
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1;
+    padding: 2px 4px;
+}
+
+@media (max-width: 900px) {
+    .sidebar {
+        display: none;
+    }
+    .search input {
+        width: 140px;
+    }
+}

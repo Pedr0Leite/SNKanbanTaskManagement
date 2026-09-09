@@ -107,9 +107,11 @@ export function NewBoardDialog({ onClose, onCreated }: NewBoardDialogProps): Rea
         }
     }, [table, laneField])
 
+    // An empty query matches nothing, rather than dumping every table on the
+    // instance into the dropdown.
     const visibleTables = useMemo(() => {
         const q = tableFilter.trim().toLowerCase()
-        if (!q) return tables.slice(0, 300)
+        if (!q) return []
         return tables
             .filter((t) => t.label.toLowerCase().includes(q) || t.name.toLowerCase().includes(q))
             .slice(0, 300)
@@ -122,7 +124,8 @@ export function NewBoardDialog({ onClose, onCreated }: NewBoardDialogProps): Rea
         fields.find((f) => f.name === fieldName)?.label ?? fieldName
 
     // Selected fields stay pinned at the top, so they never scroll out of sight
-    // behind a search that no longer matches them.
+    // behind a search that no longer matches them. An empty query matches
+    // nothing, so what is left is exactly what you have already picked.
     const pickableFields = useMemo(() => {
         const q = fieldFilter.trim().toLowerCase()
         const candidates = fields.filter((f) => f.name !== titleField && f.name !== subtitleField)
@@ -130,7 +133,7 @@ export function NewBoardDialog({ onClose, onCreated }: NewBoardDialogProps): Rea
             ? candidates.filter(
                   (f) => f.label.toLowerCase().includes(q) || f.name.toLowerCase().includes(q)
               )
-            : candidates
+            : []
         const selected = candidates.filter((f) => cardFields.includes(f.name))
         const rest = matches.filter((f) => !cardFields.includes(f.name))
         return [...selected, ...rest]
@@ -278,9 +281,8 @@ export function NewBoardDialog({ onClose, onCreated }: NewBoardDialogProps): Rea
                                         </div>
                                     ) : (
                                         <div className="ref-field">
-                                            <span className="ref-icon" aria-hidden="true">
-                                                &#128269;
-                                            </span>
+                                            {/* The magnifier is drawn by the
+                                                input's background image now. */}
                                             <input
                                                 id="nb-table-filter"
                                                 type="text"
@@ -338,7 +340,9 @@ export function NewBoardDialog({ onClose, onCreated }: NewBoardDialogProps): Rea
                                                     ))}
                                                     {visibleTables.length === 0 && !loadingTables ? (
                                                         <li className="nb-tables-empty">
-                                                            No table matches “{tableFilter}”.
+                                                            {tableFilter.trim()
+                                                                ? `No table matches “${tableFilter}”.`
+                                                                : 'Type to search tables.'}
                                                         </li>
                                                     ) : null}
                                                 </ul>
@@ -472,7 +476,9 @@ export function NewBoardDialog({ onClose, onCreated }: NewBoardDialogProps): Rea
                                         ))}
                                         {pickableFields.length === 0 ? (
                                             <li className="nb-chips-empty">
-                                                No field matches “{fieldFilter}”.
+                                                {fieldFilter.trim()
+                                                    ? `No field matches “${fieldFilter}”.`
+                                                    : 'Type to search fields.'}
                                             </li>
                                         ) : null}
                                     </ul>

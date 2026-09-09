@@ -1,0 +1,220 @@
+/*
+ * Part of the stylesheet split out of the former single app.css.
+ *
+ * @servicenow/isomorphic-rollup inlines an imported stylesheet into the JS
+ * bundle only while it is under 14 KB (shouldExtract: fileContent.length >
+ * 14 * 1024 -- hard-coded, not configurable). Anything larger is pushed to a
+ * sys_ux_theme_asset record and linked as /uxta/<id>.assetx, a table whose
+ * read ACLs require ui_builder_admin or virtual_agent_admin -- so ordinary
+ * board users get no stylesheet at all. Keep every one of these files well
+ * under 14 KB; now.prebuild.mjs fails the build if one goes over.
+ *
+ * Import order in app.tsx is the cascade order, and matches the old file.
+ */
+/* ---------- Board ---------- */
+
+.board {
+    flex: 1;
+    display: flex;
+    gap: var(--gutter);
+    align-items: flex-start;
+    padding: 24px;
+    overflow: auto;
+    min-height: 0;
+}
+
+/* Compact density, driven by the x_335329_sn_ktm.density system property. */
+.kanban-root[data-density='compact'] .card {
+    padding: 12px 14px;
+    gap: 5px;
+}
+
+.kanban-root[data-density='compact'] .lane-cards {
+    gap: 12px;
+}
+
+.kanban-root[data-density='compact'] .board {
+    padding: 16px;
+}
+
+.lane {
+    width: var(--lane-width);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: var(--lane-bg);
+    border-radius: var(--radius-card);
+    padding: 4px;
+    transition: background 0.15s ease;
+}
+
+.lane.is-over {
+    background: var(--purple-soft);
+    outline: 2px dashed var(--purple);
+    outline-offset: 2px;
+}
+
+.lane.collapsed {
+    width: 56px;
+}
+
+.lane-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 4px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2.4px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.lane-dot {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--text-muted);
+}
+
+.lane-header .count {
+    letter-spacing: 0;
+}
+
+.lane-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 60px;
+    list-style: none;
+}
+
+.lane-empty {
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-card);
+    padding: 22px 12px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* ---------- Card ---------- */
+
+.card {
+    width: 100%;
+    text-align: left;
+    background: var(--surface-raised);
+    border: none;
+    border-left: 3px solid transparent;
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.card:hover .card-title {
+    color: var(--purple);
+}
+
+.card.pending {
+    opacity: 0.55;
+}
+
+.card.locked {
+    cursor: not-allowed;
+}
+
+.card.dragging {
+    opacity: 0.35;
+}
+
+.card.overlay {
+    box-shadow: var(--shadow-drag);
+    transform: rotate(2deg);
+    cursor: grabbing;
+}
+
+.card-title {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.25;
+    transition: color 0.15s ease;
+}
+
+.card-subtitle {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 2px;
+}
+
+.badge {
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 3px 9px;
+    background: var(--purple-soft);
+    color: var(--purple);
+    white-space: nowrap;
+}
+
+.badge[data-tone='high'] {
+    background: var(--red-soft);
+    color: var(--red);
+}
+
+.badge[data-tone='medium'] {
+    background: var(--amber-soft);
+    color: var(--amber);
+}
+
+.avatar {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.avatar .initials {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--purple);
+    color: var(--text-on-accent);
+    font-size: 10px;
+    flex-shrink: 0;
+}
+
+.meta-text {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.lock-hint {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+

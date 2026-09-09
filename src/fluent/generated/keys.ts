@@ -8,6 +8,7 @@ declare global {
                     'app.css': {
                         table: 'sys_ux_theme_asset'
                         id: '99e0b76fe8ad4c258ea4c384a5da3df9'
+                        deleted: true
                     }
                     'board-demo': {
                         table: 'x_335329_sn_ktm_board'
@@ -862,6 +863,7 @@ declare global {
                     {
                         table: 'sys_dictionary'
                         id: 'c1e44c5c499b4d0e9081ddf20bbbade1'
+                        deleted: true
                         key: {
                             name: 'x_335329_sn_ktm_lane'
                             element: 'wip_limit'
@@ -1012,6 +1014,7 @@ declare global {
                     {
                         table: 'sys_documentation'
                         id: 'ea46cce1debd4412acceb9d8abd8141e'
+                        deleted: true
                         key: {
                             name: 'x_335329_sn_ktm_lane'
                             element: 'wip_limit'

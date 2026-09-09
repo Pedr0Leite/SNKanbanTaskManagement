@@ -1,0 +1,405 @@
+/*
+ * Part of the stylesheet split out of the former single app.css.
+ *
+ * @servicenow/isomorphic-rollup inlines an imported stylesheet into the JS
+ * bundle only while it is under 14 KB (shouldExtract: fileContent.length >
+ * 14 * 1024 -- hard-coded, not configurable). Anything larger is pushed to a
+ * sys_ux_theme_asset record and linked as /uxta/<id>.assetx, a table whose
+ * read ACLs require ui_builder_admin or virtual_agent_admin -- so ordinary
+ * board users get no stylesheet at all. Keep every one of these files well
+ * under 14 KB; now.prebuild.mjs fails the build if one goes over.
+ *
+ * Import order in app.tsx is the cascade order, and matches the old file.
+ */
+/* ---------- New board dialog ---------- */
+
+.modal.nb {
+    width: min(1040px, 100%);
+    /* A definite height, not just a cap. With max-height alone the column's
+       height depends on its content, so a tall field list could still win the
+       argument; with a fixed height the footer is always at the bottom and the
+       form is always the part that scrolls. */
+    height: min(88vh, 820px);
+    max-height: min(88vh, 820px);
+}
+
+/* header, steps and footer must never shrink: the modal is a flex column with
+   overflow hidden, so without this a long field list squeezes the footer -- and
+   the Create board button -- out of the dialog entirely. */
+.nb-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 22px 24px 16px;
+    flex-shrink: 0;
+}
+
+.nb-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2.4px;
+    text-transform: uppercase;
+    color: var(--purple);
+    margin-bottom: 4px;
+}
+
+.nb-header h2 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.4px;
+    line-height: 1.2;
+}
+
+.nb-header > div:first-child {
+    flex: 1;
+    min-width: 0;
+}
+
+.nb-steps {
+    display: flex;
+    gap: 8px;
+    padding: 0 24px 16px;
+    border-bottom: 1px solid var(--line);
+    flex-shrink: 0;
+}
+
+.nb-step {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: transparent;
+    text-align: left;
+    color: var(--text-muted);
+}
+
+.nb-step:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.nb-step[aria-current='step'] {
+    border-color: var(--purple);
+    background: var(--purple-soft);
+    color: var(--text);
+}
+
+.nb-step-num {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--line);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.nb-step[aria-current='step'] .nb-step-num {
+    background: var(--purple);
+    color: var(--text-on-accent);
+}
+
+.nb-step strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.nb-step em {
+    display: block;
+    font-style: normal;
+    font-size: 11px;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.nb-body {
+    display: flex;
+    min-height: 0;
+    flex: 1;
+}
+
+.nb-form {
+    flex: 1 1 50%;
+    min-width: 0;
+    padding: 20px 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.nb-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    /* Same reason: allow the field to shrink so a scrolling child inside it can
+       honour its own height cap. */
+    min-height: 0;
+}
+
+.nb-field > label,
+.nb-label-text {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+/* Search inputs are excluded — they get the ringed treatment further up, and
+   this block comes later in the file, so listing them here would win. */
+.nb-field input[type='text'],
+.nb-field select {
+    min-height: 38px;
+    border-radius: 8px;
+    border: 1px solid var(--line-strong);
+    background: var(--surface-sunken);
+    color: var(--text);
+    padding: 6px 10px;
+    font: inherit;
+    font-size: 14px;
+    transition: border-color 0.12s ease, background 0.12s ease;
+}
+
+/* Native select chrome is the one thing that gave these dialogs away as
+   unstyled. The chevron is drawn instead, in the muted token so it reads
+   correctly on both the light and dark surface. */
+.nb-field select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 34px;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' stroke='%23828FA3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    cursor: pointer;
+}
+
+.nb-field select:hover,
+.nb-field input:hover {
+    border-color: var(--purple);
+    background-color: var(--surface);
+}
+
+.nb-field input:focus-visible,
+.nb-field select:focus-visible {
+    border-color: var(--purple);
+    background-color: var(--surface);
+}
+
+/* Reference-field behaviour: type to search, pick one, see it as a token. */
+
+.ref-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.ref-field input {
+    width: 100%;
+}
+
+.ref-results {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 5;
+    list-style: none;
+    max-height: 240px;
+    overflow-y: auto;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    box-shadow: var(--shadow-modal);
+}
+
+.ref-chosen {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 38px;
+    padding: 6px 8px 6px 11px;
+    border: 1px solid var(--purple);
+    border-radius: 8px;
+    background: var(--purple-soft);
+}
+
+.ref-chosen .ref-icon {
+    font-size: 12px;
+    color: var(--purple);
+}
+
+.ref-chosen-label {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    overflow: hidden;
+}
+
+.ref-chosen-label code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ref-clear {
+    flex-shrink: 0;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--purple);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    padding: 5px 10px;
+}
+
+.ref-clear:hover {
+    background: var(--purple);
+    color: var(--text-on-accent);
+}
+
+.nb-tables,
+.ref-results {
+    list-style: none;
+}
+
+.nb-tables button,
+.ref-results button {
+    width: 100%;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 12px;
+    border: none;
+    background: transparent;
+    text-align: left;
+    color: var(--text);
+    font-size: 13px;
+    border-bottom: 1px solid var(--line);
+}
+
+.nb-tables li:last-child button,
+.ref-results li:last-child button {
+    border-bottom: none;
+}
+
+.nb-tables button:hover,
+.ref-results button:hover {
+    background: var(--purple-soft);
+}
+
+.nb-tables button.selected,
+.ref-results button.selected {
+    background: var(--purple);
+    color: var(--text-on-accent);
+}
+
+.nb-table-label {
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.nb-tables code,
+.ref-results code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11px;
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
+.nb-tables-empty {
+    padding: 14px;
+    font-size: 13px;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+/* A case table carries 100+ fields. The cloud scrolls in its own box so the
+   dialog height stays predictable however many there are. */
+.nb-chips {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 6px;
+    /* min-height: 0 is load-bearing. As a flex item this box gets
+       min-height: auto, which resolves to its content height and OVERRIDES
+       max-height — the cap was ignored, the list grew without bound and pushed
+       the Create board button out of the dialog. */
+    min-height: 0;
+    max-height: 180px;
+    overflow-y: auto;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface-sunken);
+}
+
+.nb-picked {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.nb-picked button {
+    border: none;
+    background: transparent;
+    color: var(--purple);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 0;
+}
+
+.nb-chips-empty {
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 4px 2px;
+}
+
+.nb-chip {
+    border: 1px solid var(--line-strong);
+    border-radius: 14px;
+    background: transparent;
+    color: var(--text-muted);
+    padding: 5px 11px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.nb-chip:hover {
+    border-color: var(--purple);
+    color: var(--purple);
+}
+
+.nb-chip.on {
+    background: var(--purple);
+    border-color: var(--purple);
+    color: var(--text-on-accent);
+}
+
