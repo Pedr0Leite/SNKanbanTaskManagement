@@ -16,7 +16,6 @@ export function laneDroppableId(value: string): string {
 
 export function Lane({ lane, cards, onOpen }: LaneProps): React.JSX.Element {
     const { setNodeRef, isOver } = useDroppable({ id: laneDroppableId(lane.value) })
-    const overLimit = lane.wip_limit > 0 && cards.length > lane.wip_limit
     const headingId = `lane-${lane.value}-heading`
 
     return (
@@ -33,11 +32,6 @@ export function Lane({ lane, cards, onOpen }: LaneProps): React.JSX.Element {
                 />
                 {lane.label}
                 <span className="count">({cards.length})</span>
-                {overLimit ? (
-                    <span className="wip-warn" title={`WIP limit is ${lane.wip_limit}`}>
-                        over limit
-                    </span>
-                ) : null}
             </h2>
 
             {cards.length === 0 ? (

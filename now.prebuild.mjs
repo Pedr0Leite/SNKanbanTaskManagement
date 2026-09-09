@@ -61,6 +61,21 @@ export default async ({ rootDir, config, fs, path, logger, registerExplicitId })
         dir: staticContentDir,
         sourcemap: true,
     })
+    // A stylesheet over 14 KB is not inlined into the bundle: the SDK emits it
+    // as a sys_ux_theme_asset and links /uxta/<id>.assetx, whose read ACLs
+    // require ui_builder_admin or virtual_agent_admin -- so board users load
+    // the page with those rules missing and nothing reports an error. The
+    // symptom is an unstyled UI, hours after the fact. If any CSS reaches the
+    // static output, extraction happened; fail the build instead.
+    const extracted = rollupOutput.output.filter((f) => f.fileName.endsWith('.css'))
+    if (extracted.length) {
+        throw new Error(
+            'CSS over the 14 KB inline threshold was extracted to a theme asset: ' +
+                extracted.map((f) => f.fileName + ' (' + f.source.length + ' bytes)').join(', ') +
+                '. Split the file so every stylesheet stays under 14336 bytes.'
+        )
+    }
+
     // Print the build results
     rollupOutput.output.forEach((file) => {
         if (file.type === 'asset') {

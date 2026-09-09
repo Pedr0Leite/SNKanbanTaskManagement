@@ -189,11 +189,6 @@ export const x_335329_sn_ktm_lane = Table({
             label: 'Order',
             hint: 'Overrides the choice sequence. Leave empty to keep the platform order.',
         }),
-        wip_limit: IntegerColumn({
-            label: 'WIP limit',
-            default: 0,
-            hint: '0 means no limit.',
-        }),
         accent_colour: StringColumn({
             label: 'Accent colour',
             maxLength: 40,
