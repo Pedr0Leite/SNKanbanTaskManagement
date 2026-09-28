@@ -66,7 +66,7 @@
     border-radius: var(--radius-card);
     background: linear-gradient(90deg, var(--line) 25%, var(--surface) 50%, var(--line) 75%);
     background-size: 400% 100%;
-    animation: kanban-shimmer 1.4s ease infinite;
+    animation: noviqboard-shimmer 1.4s ease infinite;
 }
 
 .skeleton-bar {
@@ -79,7 +79,7 @@
     height: 84px;
 }
 
-@keyframes kanban-shimmer {
+@keyframes noviqboard-shimmer {
     from {
         background-position: 100% 0;
     }
@@ -89,8 +89,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .kanban-root *,
-    .kanban-root *::after {
+    .noviqboard-root *,
+    .noviqboard-root *::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;

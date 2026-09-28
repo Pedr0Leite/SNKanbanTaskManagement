@@ -15,7 +15,7 @@ import { Record } from '@servicenow/sdk/core'
 
 Record({
     $id: Now.ID['board-demo'],
-    table: 'x_335329_sn_ktm_board',
+    table: 'x_nold_nvqbrd_board',
     data: {
         name: 'Incidents',
         table: 'incident',
@@ -33,11 +33,11 @@ Record({
 
 Record({
     $id: Now.ID['fld-priority'],
-    table: 'x_335329_sn_ktm_field',
+    table: 'x_nold_nvqbrd_field',
     data: {
         // Now.ID is only valid for $id. A reference VALUE needs Now.ref, or the
         // literal key string is stored and every child record is orphaned.
-        board: Now.ref('x_335329_sn_ktm_board', 'board-demo'),
+        board: Now.ref('x_nold_nvqbrd_board', 'board-demo'),
         element: 'priority',
         show_on_card: true,
         show_in_modal: true,
@@ -48,11 +48,11 @@ Record({
 
 Record({
     $id: Now.ID['fld-assigned'],
-    table: 'x_335329_sn_ktm_field',
+    table: 'x_nold_nvqbrd_field',
     data: {
         // Now.ID is only valid for $id. A reference VALUE needs Now.ref, or the
         // literal key string is stored and every child record is orphaned.
-        board: Now.ref('x_335329_sn_ktm_board', 'board-demo'),
+        board: Now.ref('x_nold_nvqbrd_board', 'board-demo'),
         element: 'assigned_to',
         show_on_card: true,
         show_in_modal: true,
@@ -63,11 +63,11 @@ Record({
 
 Record({
     $id: Now.ID['fld-caller'],
-    table: 'x_335329_sn_ktm_field',
+    table: 'x_nold_nvqbrd_field',
     data: {
         // Now.ID is only valid for $id. A reference VALUE needs Now.ref, or the
         // literal key string is stored and every child record is orphaned.
-        board: Now.ref('x_335329_sn_ktm_board', 'board-demo'),
+        board: Now.ref('x_nold_nvqbrd_board', 'board-demo'),
         element: 'caller_id',
         show_on_card: false,
         show_in_modal: true,
@@ -78,11 +78,11 @@ Record({
 
 Record({
     $id: Now.ID['fld-category'],
-    table: 'x_335329_sn_ktm_field',
+    table: 'x_nold_nvqbrd_field',
     data: {
         // Now.ID is only valid for $id. A reference VALUE needs Now.ref, or the
         // literal key string is stored and every child record is orphaned.
-        board: Now.ref('x_335329_sn_ktm_board', 'board-demo'),
+        board: Now.ref('x_nold_nvqbrd_board', 'board-demo'),
         element: 'category',
         show_on_card: false,
         show_in_modal: true,
@@ -93,11 +93,11 @@ Record({
 
 Record({
     $id: Now.ID['fld-opened'],
-    table: 'x_335329_sn_ktm_field',
+    table: 'x_nold_nvqbrd_field',
     data: {
         // Now.ID is only valid for $id. A reference VALUE needs Now.ref, or the
         // literal key string is stored and every child record is orphaned.
-        board: Now.ref('x_335329_sn_ktm_board', 'board-demo'),
+        board: Now.ref('x_nold_nvqbrd_board', 'board-demo'),
         element: 'opened_at',
         show_on_card: false,
         show_in_modal: true,
@@ -108,11 +108,11 @@ Record({
 
 Record({
     $id: Now.ID['fld-description'],
-    table: 'x_335329_sn_ktm_field',
+    table: 'x_nold_nvqbrd_field',
     data: {
         // Now.ID is only valid for $id. A reference VALUE needs Now.ref, or the
         // literal key string is stored and every child record is orphaned.
-        board: Now.ref('x_335329_sn_ktm_board', 'board-demo'),
+        board: Now.ref('x_nold_nvqbrd_board', 'board-demo'),
         element: 'description',
         show_on_card: false,
         show_in_modal: true,
@@ -126,11 +126,11 @@ Record({
 
 Record({
     $id: Now.ID['lane-new'],
-    table: 'x_335329_sn_ktm_lane',
+    table: 'x_nold_nvqbrd_lane',
     data: {
         // Now.ID is only valid for $id. A reference VALUE needs Now.ref, or the
         // literal key string is stored and every child record is orphaned.
-        board: Now.ref('x_335329_sn_ktm_board', 'board-demo'),
+        board: Now.ref('x_nold_nvqbrd_board', 'board-demo'),
         value: '1',
         accent_colour: '#49C4E5',
         order: 100,
@@ -140,11 +140,11 @@ Record({
 
 Record({
     $id: Now.ID['lane-progress'],
-    table: 'x_335329_sn_ktm_lane',
+    table: 'x_nold_nvqbrd_lane',
     data: {
         // Now.ID is only valid for $id. A reference VALUE needs Now.ref, or the
         // literal key string is stored and every child record is orphaned.
-        board: Now.ref('x_335329_sn_ktm_board', 'board-demo'),
+        board: Now.ref('x_nold_nvqbrd_board', 'board-demo'),
         value: '2',
         accent_colour: '#8471F2',
         order: 200,
@@ -154,11 +154,11 @@ Record({
 
 Record({
     $id: Now.ID['lane-hold'],
-    table: 'x_335329_sn_ktm_lane',
+    table: 'x_nold_nvqbrd_lane',
     data: {
         // Now.ID is only valid for $id. A reference VALUE needs Now.ref, or the
         // literal key string is stored and every child record is orphaned.
-        board: Now.ref('x_335329_sn_ktm_board', 'board-demo'),
+        board: Now.ref('x_nold_nvqbrd_board', 'board-demo'),
         value: '3',
         accent_colour: '#F2C94C',
         order: 300,
@@ -168,11 +168,11 @@ Record({
 
 Record({
     $id: Now.ID['lane-resolved'],
-    table: 'x_335329_sn_ktm_lane',
+    table: 'x_nold_nvqbrd_lane',
     data: {
         // Now.ID is only valid for $id. A reference VALUE needs Now.ref, or the
         // literal key string is stored and every child record is orphaned.
-        board: Now.ref('x_335329_sn_ktm_board', 'board-demo'),
+        board: Now.ref('x_nold_nvqbrd_board', 'board-demo'),
         value: '6',
         accent_colour: '#67E2AE',
         order: 400,
@@ -182,11 +182,11 @@ Record({
 
 Record({
     $id: Now.ID['lane-closed'],
-    table: 'x_335329_sn_ktm_lane',
+    table: 'x_nold_nvqbrd_lane',
     data: {
         // Now.ID is only valid for $id. A reference VALUE needs Now.ref, or the
         // literal key string is stored and every child record is orphaned.
-        board: Now.ref('x_335329_sn_ktm_board', 'board-demo'),
+        board: Now.ref('x_nold_nvqbrd_board', 'board-demo'),
         value: '7',
         accent_colour: '#828FA3',
         order: 500,
@@ -197,11 +197,11 @@ Record({
 // Cancelled records add noise to a working board; hidden by default.
 Record({
     $id: Now.ID['lane-cancelled'],
-    table: 'x_335329_sn_ktm_lane',
+    table: 'x_nold_nvqbrd_lane',
     data: {
         // Now.ID is only valid for $id. A reference VALUE needs Now.ref, or the
         // literal key string is stored and every child record is orphaned.
-        board: Now.ref('x_335329_sn_ktm_board', 'board-demo'),
+        board: Now.ref('x_nold_nvqbrd_board', 'board-demo'),
         value: '8',
         order: 600,
         hidden: true,

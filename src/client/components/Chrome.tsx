@@ -10,7 +10,7 @@ export interface Toast {
 
 export interface SidebarProps {
     boards: BoardSummary[]
-    /** Product name, from the x_335329_sn_ktm.title system property. */
+    /** Product name, from the x_nold_nvqbrd.title system property. */
     brand: string
     activeBoardId: string
     theme: 'light' | 'dark'
@@ -127,11 +127,11 @@ export function Toolbar({
             <span className="spacer" />
 
             <div className="search">
-                <label className="visually-hidden" htmlFor="kanban-search">
+                <label className="visually-hidden" htmlFor="noviqboard-search">
                     Search this board
                 </label>
                 <input
-                    id="kanban-search"
+                    id="noviqboard-search"
                     type="search"
                     value={search}
                     placeholder="Search…"

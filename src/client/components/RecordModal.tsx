@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { api } from '../api'
-import { BoardConfig, KanbanError, RecordDetail } from '../types'
+import { BoardConfig, NoviqBoardError, RecordDetail } from '../types'
 
 export interface RecordModalProps {
     board: BoardConfig
@@ -12,7 +12,7 @@ export interface RecordModalProps {
 
 export function RecordModal({ board, sysId, onClose, onRecordChanged }: RecordModalProps): React.JSX.Element {
     const [detail, setDetail] = useState<RecordDetail | null>(null)
-    const [error, setError] = useState<KanbanError | null>(null)
+    const [error, setError] = useState<NoviqBoardError | null>(null)
     const [text, setText] = useState('')
     const [field, setField] = useState(board.journal.field)
 
@@ -44,7 +44,7 @@ export function RecordModal({ board, sysId, onClose, onRecordChanged }: RecordMo
                 )
             })
             .catch((e: unknown) => {
-                if (live) setError(e instanceof KanbanError ? e : null)
+                if (live) setError(e instanceof NoviqBoardError ? e : null)
             })
         return () => {
             live = false
@@ -111,7 +111,7 @@ export function RecordModal({ board, sysId, onClose, onRecordChanged }: RecordMo
             setText('')
             onRecordChanged(sysId, result.sys_updated_on)
         } catch (e: unknown) {
-            setPostError(e instanceof KanbanError ? e.message : 'That entry could not be saved.')
+            setPostError(e instanceof NoviqBoardError ? e.message : 'That entry could not be saved.')
         } finally {
             setPosting(false)
         }
@@ -128,12 +128,12 @@ export function RecordModal({ board, sysId, onClose, onRecordChanged }: RecordMo
                 className="modal wide split"
                 role="dialog"
                 aria-modal="true"
-                aria-labelledby="kanban-modal-title"
+                aria-labelledby="noviqboard-modal-title"
                 ref={dialogRef}
                 onKeyDown={onKeyDown}
             >
                 <header className="modal-header">
-                    <h2 id="kanban-modal-title">{detail ? detail.title : 'Loading record'}</h2>
+                    <h2 id="noviqboard-modal-title">{detail ? detail.title : 'Loading record'}</h2>
                     <button type="button" className="icon-btn" onClick={onClose} ref={closeRef} aria-label="Close">
                         &#10005;
                     </button>
@@ -214,11 +214,11 @@ export function RecordModal({ board, sysId, onClose, onRecordChanged }: RecordMo
 
                 {detail && writable.length > 0 && field ? (
                     <div className="compose split-right">
-                        <label className="section-title" htmlFor="kanban-journal-text">
+                        <label className="section-title" htmlFor="noviqboard-journal-text">
                             Add a note
                         </label>
                         <textarea
-                            id="kanban-journal-text"
+                            id="noviqboard-journal-text"
                             value={text}
                             placeholder="Add a note…"
                             onChange={(e) => setText(e.target.value)}
@@ -231,11 +231,11 @@ export function RecordModal({ board, sysId, onClose, onRecordChanged }: RecordMo
                         <div className="compose-actions">
                             {board.journal.allow_choice && writable.length > 1 ? (
                                 <>
-                                    <label className="visually-hidden" htmlFor="kanban-journal-field">
+                                    <label className="visually-hidden" htmlFor="noviqboard-journal-field">
                                         Post as
                                     </label>
                                     <select
-                                        id="kanban-journal-field"
+                                        id="noviqboard-journal-field"
                                         value={field}
                                         onChange={(e) => setField(e.target.value)}
                                     >

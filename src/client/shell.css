@@ -21,7 +21,7 @@
    flex-based rather than the reference's 100vw/100vh, because we render inside
    a host page rather than owning the viewport. */
 
-.kanban-root {
+.noviqboard-root {
     font-family: var(--font);
     color: var(--text);
     background: var(--surface-sunken);
@@ -31,20 +31,20 @@
     overflow: hidden;
 }
 
-.kanban-root *,
-.kanban-root *::before,
-.kanban-root *::after {
+.noviqboard-root *,
+.noviqboard-root *::before,
+.noviqboard-root *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-.kanban-root button {
+.noviqboard-root button {
     font: inherit;
     cursor: pointer;
 }
 
-.kanban-root :focus-visible {
+.noviqboard-root :focus-visible {
     outline: 2px solid var(--purple);
     outline-offset: 2px;
     border-radius: 4px;
@@ -191,7 +191,7 @@
     transition: transform 0.2s ease;
 }
 
-.kanban-root[data-theme='dark'] .theme-toggle .switch::after {
+.noviqboard-root[data-theme='dark'] .theme-toggle .switch::after {
     transform: translateX(20px);
 }
 
@@ -372,10 +372,10 @@
 }
 
 .icon-btn[data-busy='true'] {
-    animation: kanban-spin 0.9s linear infinite;
+    animation: noviqboard-spin 0.9s linear infinite;
 }
 
-@keyframes kanban-spin {
+@keyframes noviqboard-spin {
     to {
         transform: rotate(360deg);
     }

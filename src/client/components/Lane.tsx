@@ -6,6 +6,7 @@ import { Card as CardModel, Lane as LaneModel } from '../types'
 export interface LaneProps {
     lane: LaneModel
     cards: CardModel[]
+    table: string
     onOpen: (sysId: string) => void
 }
 
@@ -14,7 +15,7 @@ export function laneDroppableId(value: string): string {
     return `lane:${value}`
 }
 
-export function Lane({ lane, cards, onOpen }: LaneProps): React.JSX.Element {
+export function Lane({ lane, cards, table, onOpen }: LaneProps): React.JSX.Element {
     const { setNodeRef, isOver } = useDroppable({ id: laneDroppableId(lane.value) })
     const headingId = `lane-${lane.value}-heading`
 
@@ -42,6 +43,7 @@ export function Lane({ lane, cards, onOpen }: LaneProps): React.JSX.Element {
                         <Card
                             key={card.sys_id}
                             card={card}
+                            table={table}
                             laneLabel={lane.label}
                             accent={lane.accent}
                             onOpen={onOpen}

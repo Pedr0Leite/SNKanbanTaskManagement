@@ -1,11 +1,11 @@
-var KanbanRecordService = Class.create()
+var NoviqBoardRecordService = Class.create()
 
-KanbanRecordService.JOURNAL_LIMIT = 50
+NoviqBoardRecordService.JOURNAL_LIMIT = 50
 
-KanbanRecordService.prototype = {
+NoviqBoardRecordService.prototype = {
     initialize: function () {
-        this.boardService = new KanbanBoardService()
-        this.choiceUtil = new KanbanChoiceUtil()
+        this.boardService = new NoviqBoardBoardService()
+        this.choiceUtil = new NoviqBoardChoiceUtil()
         this._authorCache = {}
     },
 
@@ -125,8 +125,8 @@ KanbanRecordService.prototype = {
         var j = new GlideRecord('sys_journal_field')
         j.addQuery('element_id', sysId)
         j.orderByDesc('sys_created_on')
-        j.chooseWindow(start, start + KanbanRecordService.JOURNAL_LIMIT + 1, false)
-        j.setLimit(KanbanRecordService.JOURNAL_LIMIT + 1)
+        j.chooseWindow(start, start + NoviqBoardRecordService.JOURNAL_LIMIT + 1, false)
+        j.setLimit(NoviqBoardRecordService.JOURNAL_LIMIT + 1)
         j.query()
         while (j.next()) {
             var author = this._author(String(j.getValue('sys_created_by')))
@@ -140,7 +140,7 @@ KanbanRecordService.prototype = {
                 initials: author.initials,
             })
         }
-        var hasMore = entries.length > KanbanRecordService.JOURNAL_LIMIT
+        var hasMore = entries.length > NoviqBoardRecordService.JOURNAL_LIMIT
         if (hasMore) entries.pop()
         return { entries: entries, has_more: hasMore, offset: start, next_offset: start + entries.length }
     },
@@ -247,7 +247,7 @@ KanbanRecordService.prototype = {
 
         if (landed !== String(toLane)) {
             gs.error(
-                '[' + correlationId + '] KanbanRecordService.moveLane refused: ' + table + '/' + sysId +
+                '[' + correlationId + '] NoviqBoardRecordService.moveLane refused: ' + table + '/' + sysId +
                 ' ' + laneField + ' ' + from + ' -> ' + toLane +
                 '; update() returned ' + (result === null ? 'null' : String(result)) +
                 '; stored value is now ' + landed
@@ -331,7 +331,7 @@ KanbanRecordService.prototype = {
         var newestAfter = after.entries.length > 0 ? after.entries[0].sys_id : ''
         if (!newestAfter || newestAfter === newestBefore) {
             gs.error(
-                '[' + correlationId + '] KanbanRecordService.addJournal wrote nothing: ' + table + '/' + sysId +
+                '[' + correlationId + '] NoviqBoardRecordService.addJournal wrote nothing: ' + table + '/' + sysId +
                 ' field ' + field + '; update() returned ' + (result === null ? 'null' : String(result))
             )
             return {
@@ -407,5 +407,5 @@ KanbanRecordService.prototype = {
         return { ok: false, code: code, message: message }
     },
 
-    type: 'KanbanRecordService',
+    type: 'NoviqBoardRecordService',
 }

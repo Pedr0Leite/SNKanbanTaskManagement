@@ -1,4 +1,4 @@
-/** Types mirroring the /api/x_335329_sn_ktm/kanban/v1 contract in docs/API.md. */
+/** Types mirroring the /api/x_nold_nvqbrd/noviqboard/v1 contract in docs/API.md. */
 
 export type DisplayAs = 'text' | 'badge' | 'avatar' | 'date' | 'link'
 
@@ -69,7 +69,7 @@ export interface CardsPayload {
     limit: number
 }
 
-/** Appearance settings, from the Kanban system properties category. */
+/** Appearance settings, from the NoviqBoard system properties category. */
 export interface Settings {
     title: string
     accent: string
@@ -162,7 +162,7 @@ export interface ApiError {
 }
 
 /** Thrown by the api client for every non-ok envelope. */
-export class KanbanError extends Error {
+export class NoviqBoardError extends Error {
     readonly code: string
     readonly suggestedAction: string
     readonly correlationId: string
@@ -170,7 +170,7 @@ export class KanbanError extends Error {
 
     constructor(error: ApiError, data: unknown) {
         super(error.message)
-        this.name = 'KanbanError'
+        this.name = 'NoviqBoardError'
         this.code = error.code
         this.suggestedAction = error.suggested_action
         this.correlationId = error.correlation_id

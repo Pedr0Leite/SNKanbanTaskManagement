@@ -3,45 +3,45 @@ import { BusinessRule, RestApi, ScriptInclude } from '@servicenow/sdk/core'
 
 ScriptInclude({
     $id: Now.ID['si-choice-util'],
-    name: 'KanbanChoiceUtil',
-    description: 'Table hierarchy walking and choice-list resolution for Kanban lanes.',
-    script: Now.include('../server/KanbanChoiceUtil.js'),
+    name: 'NoviqBoardChoiceUtil',
+    description: 'Table hierarchy walking and choice-list resolution for NoviqBoard lanes.',
+    script: Now.include('../server/NoviqBoardChoiceUtil.js'),
     accessibleFrom: 'package_private',
     active: true,
 })
 
 ScriptInclude({
     $id: Now.ID['si-board-service'],
-    name: 'KanbanBoardService',
+    name: 'NoviqBoardBoardService',
     description: 'Board contract, lane resolution and ACL-safe card queries.',
-    script: Now.include('../server/KanbanBoardService.js'),
+    script: Now.include('../server/NoviqBoardBoardService.js'),
     accessibleFrom: 'package_private',
     active: true,
 })
 
 ScriptInclude({
     $id: Now.ID['si-record-service'],
-    name: 'KanbanRecordService',
+    name: 'NoviqBoardRecordService',
     description: 'Record detail, verified lane moves and journal writes.',
-    script: Now.include('../server/KanbanRecordService.js'),
+    script: Now.include('../server/NoviqBoardRecordService.js'),
     accessibleFrom: 'package_private',
     active: true,
 })
 
 ScriptInclude({
     $id: Now.ID['si-admin-service'],
-    name: 'KanbanAdminService',
+    name: 'NoviqBoardAdminService',
     description: 'Board authoring: table discovery, field discovery and board creation.',
-    script: Now.include('../server/KanbanAdminService.js'),
+    script: Now.include('../server/NoviqBoardAdminService.js'),
     accessibleFrom: 'package_private',
     active: true,
 })
 
 ScriptInclude({
     $id: Now.ID['si-api'],
-    name: 'KanbanApi',
+    name: 'NoviqBoardApi',
     description: 'Response envelope, error mapping and user preference storage.',
-    script: Now.include('../server/KanbanApi.js'),
+    script: Now.include('../server/NoviqBoardApi.js'),
     accessibleFrom: 'package_private',
     active: true,
 })
@@ -53,15 +53,15 @@ ScriptInclude({
  */
 BusinessRule({
     $id: Now.ID['br-validate-board'],
-    name: 'Kanban board must extend task',
-    table: 'x_335329_sn_ktm_board',
+    name: 'NoviqBoard board must extend task',
+    table: 'x_nold_nvqbrd_board',
     when: 'before',
     action: ['insert', 'update'],
     order: 100,
     active: true,
     description: 'Validates table extends task and the lane field resolves to a choice list.',
     script: `(function executeRule(current, previous) {
-    var util = new KanbanChoiceUtil();
+    var util = new NoviqBoardChoiceUtil();
     var table = current.getValue('table');
 
     if (!table) {
@@ -72,7 +72,7 @@ BusinessRule({
 
     if (!util.extendsTable(table, 'task')) {
         gs.addErrorMessage(gs.getMessage(
-            'Table "{0}" does not extend task, so it cannot be used as a Kanban board.', table));
+            'Table "{0}" does not extend task, so it cannot be used as a NoviqBoard board.', table));
         current.setAbortAction(true);
         return;
     }
@@ -96,14 +96,14 @@ BusinessRule({
 })
 
 RestApi({
-    $id: Now.ID['rest-kanban'],
-    name: 'Kanban',
-    serviceId: 'kanban',
+    $id: Now.ID['rest-noviqboard'],
+    name: 'NoviqBoard',
+    serviceId: 'noviqboard',
     active: true,
     produces: 'application/json',
     consumes: 'application/json',
-    shortDescription: 'Configuration-driven Kanban board API.',
-    versions: [{ $id: Now.ID['rest-kanban-v1'], version: 1, isDefault: true, active: true }],
+    shortDescription: 'Configuration-driven NoviqBoard board API.',
+    versions: [{ $id: Now.ID['rest-noviqboard-v1'], version: 1, isDefault: true, active: true }],
     routes: [
         {
             $id: Now.ID['route-boards'],
@@ -113,9 +113,9 @@ RestApi({
             version: 1,
             shortDescription: 'Boards the caller may open.',
             script: `(function (request, response) {
-    var api = new KanbanApi();
+    var api = new NoviqBoardApi();
     api.guard(response, function () {
-        return { ok: true, data: { boards: new KanbanBoardService().getBoards() } };
+        return { ok: true, data: { boards: new NoviqBoardBoardService().getBoards() } };
     });
 })(request, response);`,
         },
@@ -127,9 +127,9 @@ RestApi({
             version: 1,
             shortDescription: 'Board contract: lanes, field definitions, journal config, capabilities.',
             script: `(function (request, response) {
-    var api = new KanbanApi();
+    var api = new NoviqBoardApi();
     api.guard(response, function () {
-        return new KanbanBoardService().getBoard(request.pathParams.boardId);
+        return new NoviqBoardBoardService().getBoard(request.pathParams.boardId);
     });
 })(request, response);`,
         },
@@ -141,7 +141,7 @@ RestApi({
             version: 1,
             shortDescription: 'Cards for a board, ACL filtered and capped server-side.',
             script: `(function (request, response) {
-    var api = new KanbanApi();
+    var api = new NoviqBoardApi();
     api.guard(response, function () {
         var q = request.queryParams || {};
         var first = function (key) {
@@ -149,7 +149,7 @@ RestApi({
             if (v === undefined || v === null) return '';
             return String(Array.isArray(v) ? (v[0] || '') : v);
         };
-        return new KanbanBoardService().getCards(request.pathParams.boardId, {
+        return new NoviqBoardBoardService().getCards(request.pathParams.boardId, {
             filter: first('filter'),
             search: first('search'),
             assigned_to_me: first('assigned_to_me') === 'true'
@@ -165,12 +165,12 @@ RestApi({
             version: 1,
             shortDescription: 'Modal payload: configured fields plus the activity stream.',
             script: `(function (request, response) {
-    var api = new KanbanApi();
+    var api = new NoviqBoardApi();
     api.guard(response, function () {
         var q = request.queryParams || {};
         var board = q.board;
         if (Array.isArray(board)) board = board[0];
-        return new KanbanRecordService().getRecord(
+        return new NoviqBoardRecordService().getRecord(
             String(board || ''), request.pathParams.table, request.pathParams.sysId);
     });
 })(request, response);`,
@@ -183,11 +183,11 @@ RestApi({
             version: 1,
             shortDescription: 'Move a record to another lane, with optimistic concurrency.',
             script: `(function (request, response) {
-    var api = new KanbanApi();
+    var api = new NoviqBoardApi();
     api.guard(response, function () {
         var body = request.body ? request.body.data : {};
         body = body || {};
-        return new KanbanRecordService().moveLane(
+        return new NoviqBoardRecordService().moveLane(
             String(body.board || ''),
             request.pathParams.table,
             request.pathParams.sysId,
@@ -205,11 +205,11 @@ RestApi({
             version: 1,
             shortDescription: 'Append a comment or work note through GlideRecord.update().',
             script: `(function (request, response) {
-    var api = new KanbanApi();
+    var api = new NoviqBoardApi();
     api.guard(response, function () {
         var body = request.body ? request.body.data : {};
         body = body || {};
-        return new KanbanRecordService().addJournal(
+        return new NoviqBoardRecordService().addJournal(
             String(body.board || ''),
             request.pathParams.table,
             request.pathParams.sysId,
@@ -227,8 +227,8 @@ RestApi({
             version: 1,
             shortDescription: 'Every table that extends task, for the board creation picker.',
             script: `(function (request, response) {
-    var api = new KanbanApi();
-    api.guard(response, function () { return new KanbanAdminService().listTaskTables(); });
+    var api = new NoviqBoardApi();
+    api.guard(response, function () { return new NoviqBoardAdminService().listTaskTables(); });
 })(request, response);`,
         },
         {
@@ -239,9 +239,9 @@ RestApi({
             version: 1,
             shortDescription: 'Displayable fields on a task child, for board configuration.',
             script: `(function (request, response) {
-    var api = new KanbanApi();
+    var api = new NoviqBoardApi();
     api.guard(response, function () {
-        return new KanbanAdminService().listFields(request.pathParams.table);
+        return new NoviqBoardAdminService().listFields(request.pathParams.table);
     });
 })(request, response);`,
         },
@@ -253,9 +253,9 @@ RestApi({
             version: 1,
             shortDescription: 'Resolved choice list for a field: lane preview and condition values.',
             script: `(function (request, response) {
-    var api = new KanbanApi();
+    var api = new NoviqBoardApi();
     api.guard(response, function () {
-        return new KanbanAdminService().fieldChoices(
+        return new NoviqBoardAdminService().fieldChoices(
             request.pathParams.table, request.pathParams.field);
     });
 })(request, response);`,
@@ -268,10 +268,10 @@ RestApi({
             version: 1,
             shortDescription: 'Create a board over any table that extends task.',
             script: `(function (request, response) {
-    var api = new KanbanApi();
+    var api = new NoviqBoardApi();
     api.guard(response, function () {
         var body = request.body ? request.body.data : {};
-        return new KanbanAdminService().createBoard(body || {});
+        return new NoviqBoardAdminService().createBoard(body || {});
     });
 })(request, response);`,
         },
@@ -283,7 +283,7 @@ RestApi({
             version: 1,
             shortDescription: 'A page of the activity stream, for loading older entries.',
             script: `(function (request, response) {
-    var api = new KanbanApi();
+    var api = new NoviqBoardApi();
     api.guard(response, function () {
         var q = request.queryParams || {};
         var first = function (key) {
@@ -291,7 +291,7 @@ RestApi({
             if (v === undefined || v === null) return '';
             return String(Array.isArray(v) ? (v[0] || '') : v);
         };
-        return new KanbanRecordService().getJournalPage(
+        return new NoviqBoardRecordService().getJournalPage(
             first('board'), request.pathParams.table, request.pathParams.sysId, first('offset'));
     });
 })(request, response);`,
@@ -302,9 +302,9 @@ RestApi({
             method: 'GET',
             path: '/settings',
             version: 1,
-            shortDescription: 'Appearance settings from the Kanban system properties.',
+            shortDescription: 'Appearance settings from the NoviqBoard system properties.',
             script: `(function (request, response) {
-    var api = new KanbanApi();
+    var api = new NoviqBoardApi();
     api.guard(response, function () { return api.getSettings(); });
 })(request, response);`,
         },
@@ -316,7 +316,7 @@ RestApi({
             version: 1,
             shortDescription: 'Namespaced user preferences (theme, collapsed lanes).',
             script: `(function (request, response) {
-    var api = new KanbanApi();
+    var api = new NoviqBoardApi();
     api.guard(response, function () { return api.getPreferences(); });
 })(request, response);`,
         },
@@ -328,7 +328,7 @@ RestApi({
             version: 1,
             shortDescription: 'Persist user preferences to sys_user_preference.',
             script: `(function (request, response) {
-    var api = new KanbanApi();
+    var api = new NoviqBoardApi();
     api.guard(response, function () {
         var body = request.body ? request.body.data : {};
         return api.setPreferences((body && body.preferences) || {});

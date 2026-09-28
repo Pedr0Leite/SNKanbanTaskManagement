@@ -14,26 +14,26 @@ import {
 } from '@servicenow/sdk/core'
 
 /**
- * Kanban configuration model.
+ * NoviqBoard configuration model.
  *
  * Nothing here names a business table, field or state. A board is described
  * entirely by these records, so the same code renders any child of `task`.
  */
 
-export const kanbanAdmin = Role({
-    $id: Now.ID['role-kanban-admin'],
-    name: 'x_335329_sn_ktm.kanban_admin',
-    description: 'Can create and maintain Kanban board configuration.',
+export const noviqboardAdmin = Role({
+    $id: Now.ID['role-noviqboard-admin'],
+    name: 'x_nold_nvqbrd.noviqboard_admin',
+    description: 'Can create and maintain NoviqBoard board configuration.',
 })
 
-export const x_335329_sn_ktm_board = Table({
+export const x_nold_nvqbrd_board = Table({
     $id: Now.ID['tbl-board'],
-    name: 'x_335329_sn_ktm_board',
-    label: 'Kanban Board',
+    name: 'x_nold_nvqbrd_board',
+    label: 'NoviqBoard Board',
     display: 'name',
     audit: true,
     createAccessControls: true,
-    userRole: kanbanAdmin,
+    userRole: noviqboardAdmin,
     actions: ['read', 'create', 'update', 'delete'],
     schema: {
         name: StringColumn({
@@ -111,18 +111,18 @@ export const x_335329_sn_ktm_board = Table({
     index: [{ name: 'idx_active_order', unique: false, element: ['active', 'order'] }],
 })
 
-export const x_335329_sn_ktm_field = Table({
+export const x_nold_nvqbrd_field = Table({
     $id: Now.ID['tbl-field'],
-    name: 'x_335329_sn_ktm_field',
-    label: 'Kanban Field',
+    name: 'x_nold_nvqbrd_field',
+    label: 'NoviqBoard Field',
     display: 'element',
     createAccessControls: true,
-    userRole: kanbanAdmin,
+    userRole: noviqboardAdmin,
     actions: ['read', 'create', 'update', 'delete'],
     schema: {
         board: ReferenceColumn({
             label: 'Board',
-            referenceTable: 'x_335329_sn_ktm_board',
+            referenceTable: 'x_nold_nvqbrd_board',
             mandatory: true,
             cascadeRule: 'delete',
         }),
@@ -158,18 +158,18 @@ export const x_335329_sn_ktm_field = Table({
     index: [{ name: 'idx_board_order', unique: false, element: ['board', 'order'] }],
 })
 
-export const x_335329_sn_ktm_lane = Table({
+export const x_nold_nvqbrd_lane = Table({
     $id: Now.ID['tbl-lane'],
-    name: 'x_335329_sn_ktm_lane',
-    label: 'Kanban Lane Override',
+    name: 'x_nold_nvqbrd_lane',
+    label: 'NoviqBoard Lane Override',
     display: 'value',
     createAccessControls: true,
-    userRole: kanbanAdmin,
+    userRole: noviqboardAdmin,
     actions: ['read', 'create', 'update', 'delete'],
     schema: {
         board: ReferenceColumn({
             label: 'Board',
-            referenceTable: 'x_335329_sn_ktm_board',
+            referenceTable: 'x_nold_nvqbrd_board',
             mandatory: true,
             cascadeRule: 'delete',
         }),

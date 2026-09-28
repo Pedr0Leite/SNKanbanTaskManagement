@@ -1,13 +1,13 @@
-var KanbanBoardService = Class.create()
+var NoviqBoardBoardService = Class.create()
 
-KanbanBoardService.BOARD = 'x_335329_sn_ktm_board'
-KanbanBoardService.FIELD = 'x_335329_sn_ktm_field'
-KanbanBoardService.LANE = 'x_335329_sn_ktm_lane'
-KanbanBoardService.HARD_CAP = 500
+NoviqBoardBoardService.BOARD = 'x_nold_nvqbrd_board'
+NoviqBoardBoardService.FIELD = 'x_nold_nvqbrd_field'
+NoviqBoardBoardService.LANE = 'x_nold_nvqbrd_lane'
+NoviqBoardBoardService.HARD_CAP = 500
 
-KanbanBoardService.prototype = {
+NoviqBoardBoardService.prototype = {
     initialize: function () {
-        this.choiceUtil = new KanbanChoiceUtil()
+        this.choiceUtil = new NoviqBoardChoiceUtil()
     },
 
     /**
@@ -16,7 +16,7 @@ KanbanBoardService.prototype = {
      */
     getBoards: function () {
         var boards = []
-        var gr = new GlideRecord(KanbanBoardService.BOARD)
+        var gr = new GlideRecord(NoviqBoardBoardService.BOARD)
         gr.addQuery('active', true)
         gr.orderBy('order')
         gr.orderBy('name')
@@ -219,7 +219,7 @@ KanbanBoardService.prototype = {
         if (!resolved.ok) return this._err('bad_config', resolved.error)
 
         var overrides = {}
-        var ov = new GlideRecord(KanbanBoardService.LANE)
+        var ov = new GlideRecord(NoviqBoardBoardService.LANE)
         ov.addQuery('board', boardRec.getUniqueValue())
         ov.setLimit(200)
         ov.query()
@@ -264,7 +264,7 @@ KanbanBoardService.prototype = {
      */
     _fieldDefs: function (boardRec, template, flag) {
         var defs = []
-        var f = new GlideRecord(KanbanBoardService.FIELD)
+        var f = new GlideRecord(NoviqBoardBoardService.FIELD)
         f.addQuery('board', boardRec.getUniqueValue())
         f.addQuery(flag, true)
         f.orderBy('order')
@@ -315,7 +315,7 @@ KanbanBoardService.prototype = {
      */
     _loadBoard: function (boardId) {
         if (!boardId) return this._err('bad_request', 'No board specified.')
-        var gr = new GlideRecord(KanbanBoardService.BOARD)
+        var gr = new GlideRecord(NoviqBoardBoardService.BOARD)
         if (!gr.get(boardId)) return this._err('not_found', 'That board does not exist.')
         if (gr.getValue('active') !== '1' && gr.getValue('active') !== 'true') {
             return this._err('not_found', 'That board is not active.')
@@ -381,7 +381,7 @@ KanbanBoardService.prototype = {
         var value = String(filter || '').trim()
         if (!value) return ''
         if (/(^|\^)NQ/i.test(value)) {
-            gs.warn('Kanban: discarded a client filter containing NQ: ' + value)
+            gs.warn('NoviqBoard: discarded a client filter containing NQ: ' + value)
             return ''
         }
         value = value.replace(/^\^*(OR)?\^*/i, '')
@@ -391,12 +391,12 @@ KanbanBoardService.prototype = {
     /** Board max_records, clamped to a hard server-side ceiling. */
     _cap: function (boardRec) {
         var configured = parseInt(boardRec.getValue('max_records'), 10) || 200
-        return Math.max(1, Math.min(configured, KanbanBoardService.HARD_CAP))
+        return Math.max(1, Math.min(configured, NoviqBoardBoardService.HARD_CAP))
     },
 
     _err: function (code, message) {
         return { ok: false, code: code, message: message }
     },
 
-    type: 'KanbanBoardService',
+    type: 'NoviqBoardBoardService',
 }

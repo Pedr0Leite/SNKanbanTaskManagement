@@ -8,7 +8,7 @@ import { ErrorBoundary } from './components/States'
 const rootElement = document.getElementById('root')
 
 if (!rootElement) {
-    console.error('[Kanban] #root not found — the UI Page markup did not render.')
+    console.error('[NoviqBoard] #root not found — the UI Page markup did not render.')
 } else {
     try {
         ReactDOM.createRoot(rootElement).render(
@@ -20,8 +20,8 @@ if (!rootElement) {
         )
     } catch (error) {
         // A throw here means React never mounted, so the boundary cannot help.
-        console.error('[Kanban] failed to mount', error)
+        console.error('[NoviqBoard] failed to mount', error)
         rootElement.textContent =
-            'The Kanban board failed to start. See the browser console for details.'
+            'The NoviqBoard board failed to start. See the browser console for details.'
     }
 }

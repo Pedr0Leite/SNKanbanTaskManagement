@@ -1,5 +1,5 @@
 import React from 'react'
-import { KanbanError } from '../types'
+import { NoviqBoardError } from '../types'
 
 /**
  * Last line of defence. Without this, any render-time exception unmounts the
@@ -19,13 +19,13 @@ export class ErrorBoundary extends React.Component<
     }
 
     override componentDidCatch(error: Error, info: React.ErrorInfo): void {
-        console.error('[Kanban] render failed', error, info.componentStack)
+        console.error('[NoviqBoard] render failed', error, info.componentStack)
     }
 
     override render(): React.ReactNode {
         if (!this.state.error) return this.props.children
         return (
-            <div className="kanban-root" data-theme="light" style={{ display: 'block', padding: 24 }}>
+            <div className="noviqboard-root" data-theme="light" style={{ display: 'block', padding: 24 }}>
                 <div className="state-panel" role="alert">
                     <span className="glyph" aria-hidden="true">
                         &#9888;
@@ -87,18 +87,18 @@ export function NoBoards(): React.JSX.Element {
             </span>
             <h2>No boards are available to you</h2>
             <p>
-                Either no Kanban board has been configured yet, or none of them are active and open to your
+                Either no NoviqBoard board has been configured yet, or none of them are active and open to your
                 roles.
             </p>
             <p>
-                An administrator can create one in the <strong>Kanban Board</strong> table, pointing it at any
+                An administrator can create one in the <strong>NoviqBoard Board</strong> table, pointing it at any
                 table that extends <code>task</code>.
             </p>
         </div>
     )
 }
 
-export function NoAccess({ error }: { error: KanbanError }): React.JSX.Element {
+export function NoAccess({ error }: { error: NoviqBoardError }): React.JSX.Element {
     return (
         <div className="state-panel">
             <span className="glyph" aria-hidden="true">
@@ -111,7 +111,7 @@ export function NoAccess({ error }: { error: KanbanError }): React.JSX.Element {
     )
 }
 
-export function Failed({ error, onRetry }: { error: KanbanError; onRetry: () => void }): React.JSX.Element {
+export function Failed({ error, onRetry }: { error: NoviqBoardError; onRetry: () => void }): React.JSX.Element {
     return (
         <div className="state-panel" role="alert">
             <span className="glyph" aria-hidden="true">

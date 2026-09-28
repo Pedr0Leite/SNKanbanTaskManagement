@@ -7,7 +7,7 @@ import {
     FieldOption,
     JournalEntry,
     JournalPage,
-    KanbanError,
+    NoviqBoardError,
     NewBoard,
     RecordDetail,
     Settings,
@@ -22,7 +22,7 @@ declare global {
 
 // The version segment sits BEFORE the service id — the platform registers
 // /api/{namespace}/{version}/{service_id}/..., not /{service_id}/{version}/...
-const BASE = '/api/x_335329_sn_ktm/v1/kanban'
+const BASE = '/api/x_nold_nvqbrd/v1/noviqboard'
 const TIMEOUT_MS = 15000
 
 interface Envelope<T> {
@@ -77,7 +77,7 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
     } catch (cause) {
         window.clearTimeout(timer)
         const aborted = cause instanceof DOMException && cause.name === 'AbortError'
-        throw new KanbanError(
+        throw new NoviqBoardError(
             {
                 code: aborted ? 'timeout' : 'network',
                 message: aborted
@@ -96,7 +96,7 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
     try {
         raw = await response.json()
     } catch {
-        throw new KanbanError(
+        throw new NoviqBoardError(
             {
                 code: 'malformed',
                 message: `The board service returned something unreadable (HTTP ${response.status}).`,
@@ -111,7 +111,7 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
 
     if (body.status === 'ok' && body.data !== undefined) return body.data
 
-    throw new KanbanError(
+    throw new NoviqBoardError(
         body.error ?? {
             code: 'malformed',
             message: `Unexpected response from the board service (HTTP ${response.status}).`,

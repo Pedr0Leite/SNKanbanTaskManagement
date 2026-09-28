@@ -5,7 +5,7 @@ import { Property, Record } from '@servicenow/sdk/core'
  * Appearance settings, held as system properties so they can be changed without
  * a deploy, and surfaced as a proper configuration page at:
  *
- *   /system_properties_ui.do?sysparm_category=Kanban
+ *   /system_properties_ui.do?sysparm_category=NoviqBoard
  *
  * Board CONTENT (table, lanes, fields, filters) stays in the config tables —
  * these are only for how the board looks and what it is called.
@@ -13,16 +13,16 @@ import { Property, Record } from '@servicenow/sdk/core'
 
 Property({
     $id: Now.ID['prop-title'],
-    name: 'x_335329_sn_ktm.title',
+    name: 'x_nold_nvqbrd.title',
     type: 'string',
-    value: 'Kanban',
-    description: 'Name shown in the sidebar and the browser tab.',
+    value: '',
+    description: 'Name shown in the sidebar and the browser tab. Leave empty to show "NoviqBoard".',
     ignoreCache: false,
 })
 
 Property({
     $id: Now.ID['prop-accent'],
-    name: 'x_335329_sn_ktm.accent',
+    name: 'x_nold_nvqbrd.accent',
     type: 'string',
     value: '#635fc7',
     description: 'Primary accent colour in light theme. Any CSS colour, e.g. #635fc7.',
@@ -31,7 +31,7 @@ Property({
 
 Property({
     $id: Now.ID['prop-accent-dark'],
-    name: 'x_335329_sn_ktm.accent_dark',
+    name: 'x_nold_nvqbrd.accent_dark',
     type: 'string',
     value: '#7b77e0',
     description: 'Primary accent colour in dark theme. Needs to stay readable on a dark surface.',
@@ -40,7 +40,7 @@ Property({
 
 Property({
     $id: Now.ID['prop-default-theme'],
-    name: 'x_335329_sn_ktm.default_theme',
+    name: 'x_nold_nvqbrd.default_theme',
     type: 'choicelist',
     value: 'system',
     choices: ['system', 'light', 'dark'],
@@ -51,7 +51,7 @@ Property({
 
 Property({
     $id: Now.ID['prop-lane-width'],
-    name: 'x_335329_sn_ktm.lane_width',
+    name: 'x_nold_nvqbrd.lane_width',
     type: 'integer',
     value: 288,
     description: 'Column width in pixels. Clamped to 200-560.',
@@ -60,7 +60,7 @@ Property({
 
 Property({
     $id: Now.ID['prop-show-table-chip'],
-    name: 'x_335329_sn_ktm.show_table_chip',
+    name: 'x_nold_nvqbrd.show_table_chip',
     type: 'boolean',
     value: true,
     description: 'Show the source table name next to the board title.',
@@ -69,7 +69,7 @@ Property({
 
 Property({
     $id: Now.ID['prop-density'],
-    name: 'x_335329_sn_ktm.density',
+    name: 'x_nold_nvqbrd.density',
     type: 'choicelist',
     value: 'comfortable',
     choices: ['comfortable', 'compact'],
@@ -79,7 +79,7 @@ Property({
 
 Property({
     $id: Now.ID['prop-refresh'],
-    name: 'x_335329_sn_ktm.refresh_seconds',
+    name: 'x_nold_nvqbrd.refresh_seconds',
     type: 'integer',
     value: 30,
     description: 'How often the board refetches records, in seconds. 0 turns auto-refresh off. Non-zero values are clamped to 10-600.',
@@ -94,8 +94,8 @@ Record({
     $id: Now.ID['prop-category'],
     table: 'sys_properties_category',
     data: {
-        name: 'Kanban',
-        title: 'Kanban board appearance',
+        name: 'NoviqBoard',
+        title: 'NoviqBoard board appearance',
     },
 })
 

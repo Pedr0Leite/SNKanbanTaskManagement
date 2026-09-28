@@ -1,12 +1,12 @@
 /*
  * Theme tokens.
  *
- * Applied to .kanban-root, never to document/body — this component lives inside
+ * Applied to .noviqboard-root, never to document/body — this component lives inside
  * a host page and must not leak styles into it. Palette follows the Frontend
  * Mentor reference; contrast pairings checked for WCAG AA at body size.
  */
 
-.kanban-root {
+.noviqboard-root {
     --purple: #635fc7;
     --purple-hover: #a8a4ff;
     --purple-soft: rgba(99, 95, 199, 0.1);
@@ -41,7 +41,7 @@
     color-scheme: light;
 }
 
-.kanban-root[data-theme='dark'] {
+.noviqboard-root[data-theme='dark'] {
     --purple: #7b77e0;
     --purple-hover: #a8a4ff;
     --purple-soft: rgba(123, 119, 224, 0.18);

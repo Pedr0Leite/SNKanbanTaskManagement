@@ -1,6 +1,6 @@
 import '@servicenow/sdk/global'
 import { UiPage } from '@servicenow/sdk/core'
-import kanbanPage from '../../client/index.html'
+import noviqboardPage from '../../client/index.html'
 
 /**
  * Delivery mechanism: React bundled into static content and served by a UI Page.
@@ -8,10 +8,10 @@ import kanbanPage from '../../client/index.html'
  * component without touching anything below it.
  */
 UiPage({
-    $id: Now.ID['kanban-page'],
-    endpoint: 'x_335329_sn_ktm_kanban.do',
-    description: 'Configuration-driven Kanban board.',
+    $id: Now.ID['noviqboard-page'],
+    endpoint: 'x_nold_nvqbrd_noviqboard.do',
+    description: 'Configuration-driven NoviqBoard board.',
     category: 'general',
-    html: kanbanPage,
+    html: noviqboardPage,
     direct: true,
 })

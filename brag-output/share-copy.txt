@@ -1,0 +1,3 @@
+Kanban by noviqnow is live — the Visual Task Board, replaced.
+Real drag-and-drop over incidents, cases, changes, or any other table, with the lanes coming straight from that table's choice field.
+Configuration, not code. noviqnow.com

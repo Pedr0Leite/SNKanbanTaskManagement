@@ -1,10 +1,10 @@
-var KanbanApi = Class.create()
+var NoviqBoardApi = Class.create()
 
 /** Single namespaced preference holding a JSON object of all board settings. */
-KanbanApi.PREF_KEY = 'x_335329_sn_ktm.prefs'
+NoviqBoardApi.PREF_KEY = 'x_nold_nvqbrd.prefs'
 
 /** Service result code -> HTTP status. */
-KanbanApi.STATUS = {
+NoviqBoardApi.STATUS = {
     bad_request: 400,
     no_access: 403,
     no_write: 403,
@@ -15,7 +15,7 @@ KanbanApi.STATUS = {
     internal: 500,
 }
 
-KanbanApi.prototype = {
+NoviqBoardApi.prototype = {
     initialize: function () {},
 
     /**
@@ -34,7 +34,7 @@ KanbanApi.prototype = {
 
         var code = (result && result.code) || 'internal'
         var correlationId = (result && result.correlation_id) || gs.generateGUID()
-        response.setStatus(KanbanApi.STATUS[code] || 500)
+        response.setStatus(NoviqBoardApi.STATUS[code] || 500)
         response.setBody({
             status: 'error',
             data: (result && result.data) || {},
@@ -57,7 +57,7 @@ KanbanApi.prototype = {
             this.respond(response, fn())
         } catch (e) {
             var correlationId = gs.generateGUID()
-            gs.error('[' + correlationId + '] Kanban API failure: ' + (e.message || e) + ' | ' + (e.stack || ''))
+            gs.error('[' + correlationId + '] NoviqBoard API failure: ' + (e.message || e) + ' | ' + (e.stack || ''))
             this.respond(response, {
                 ok: false,
                 code: 'internal',
@@ -68,7 +68,7 @@ KanbanApi.prototype = {
     },
 
     /**
-     * All Kanban preferences for the caller.
+     * All NoviqBoard preferences for the caller.
      *
      * Everything lives in ONE preference holding a JSON object, because the
      * scoped API can only get and set a preference by name — it cannot enumerate
@@ -80,7 +80,7 @@ KanbanApi.prototype = {
     getPreferences: function () {
         var raw = ''
         try {
-            raw = String(gs.getUser().getPreference(KanbanApi.PREF_KEY) || '')
+            raw = String(gs.getUser().getPreference(NoviqBoardApi.PREF_KEY) || '')
         } catch (e) {
             raw = ''
         }
@@ -90,7 +90,7 @@ KanbanApi.prototype = {
             var parsed = JSON.parse(raw)
             return { ok: true, data: { preferences: parsed && typeof parsed === 'object' ? parsed : {} } }
         } catch (e) {
-            gs.warn('Kanban: discarding unparseable user preference blob for ' + gs.getUserName())
+            gs.warn('NoviqBoard: discarding unparseable user preference blob for ' + gs.getUserName())
             return { ok: true, data: { preferences: {} } }
         }
     },
@@ -135,7 +135,7 @@ KanbanApi.prototype = {
                 message: 'Preferences cannot be saved on this instance.',
             }
         }
-        user.savePreference(KanbanApi.PREF_KEY, blob)
+        user.savePreference(NoviqBoardApi.PREF_KEY, blob)
 
         // Confirm rather than assume — the direct-write path used to report
         // success while the platform silently discarded everything.
@@ -148,7 +148,7 @@ KanbanApi.prototype = {
         }
         if (!confirmed) {
             var correlationId = gs.generateGUID()
-            gs.error('[' + correlationId + '] Kanban: preference write did not persist for ' + gs.getUserName())
+            gs.error('[' + correlationId + '] NoviqBoard: preference write did not persist for ' + gs.getUserName())
             return {
                 ok: false,
                 code: 'internal',
@@ -162,37 +162,37 @@ KanbanApi.prototype = {
 
     /**
      * Appearance settings from system properties, so an administrator can
-     * rebrand the board from /system_properties_ui.do?sysparm_category=Kanban
+     * rebrand the board from /system_properties_ui.do?sysparm_category=NoviqBoard
      * without a deploy. Every value is validated here rather than trusted by
      * the client — a property is free text an admin can mistype.
      *
      * @returns {{ok: boolean, data: object}}
      */
     getSettings: function () {
-        var theme = gs.getProperty('x_335329_sn_ktm.default_theme', 'system')
+        var theme = gs.getProperty('x_nold_nvqbrd.default_theme', 'system')
         if (['system', 'light', 'dark'].indexOf(theme) === -1) theme = 'system'
 
-        var density = gs.getProperty('x_335329_sn_ktm.density', 'comfortable')
+        var density = gs.getProperty('x_nold_nvqbrd.density', 'comfortable')
         if (['comfortable', 'compact'].indexOf(density) === -1) density = 'comfortable'
 
-        var laneWidth = parseInt(gs.getProperty('x_335329_sn_ktm.lane_width', '288'), 10)
+        var laneWidth = parseInt(gs.getProperty('x_nold_nvqbrd.lane_width', '288'), 10)
         if (isNaN(laneWidth)) laneWidth = 288
         laneWidth = Math.max(200, Math.min(560, laneWidth))
 
-        var chip = String(gs.getProperty('x_335329_sn_ktm.show_table_chip', 'true'))
+        var chip = String(gs.getProperty('x_nold_nvqbrd.show_table_chip', 'true'))
 
         // 0 disables polling. Anything under 10s would hammer the instance, so
         // a non-zero value is floored rather than honoured literally.
-        var refresh = parseInt(gs.getProperty('x_335329_sn_ktm.refresh_seconds', '30'), 10)
+        var refresh = parseInt(gs.getProperty('x_nold_nvqbrd.refresh_seconds', '30'), 10)
         if (isNaN(refresh) || refresh < 0) refresh = 30
         if (refresh > 0) refresh = Math.max(10, Math.min(600, refresh))
 
         return {
             ok: true,
             data: {
-                title: String(gs.getProperty('x_335329_sn_ktm.title', 'Kanban') || 'Kanban').substring(0, 60),
-                accent: this._colour(gs.getProperty('x_335329_sn_ktm.accent', ''), '#635fc7'),
-                accent_dark: this._colour(gs.getProperty('x_335329_sn_ktm.accent_dark', ''), '#7b77e0'),
+                title: (String(gs.getProperty('x_nold_nvqbrd.title', '') || '').trim() || 'NoviqBoard').substring(0, 60),
+                accent: this._colour(gs.getProperty('x_nold_nvqbrd.accent', ''), '#635fc7'),
+                accent_dark: this._colour(gs.getProperty('x_nold_nvqbrd.accent_dark', ''), '#7b77e0'),
                 default_theme: theme,
                 lane_width: laneWidth,
                 show_table_chip: chip === 'true' || chip === '1',
@@ -221,7 +221,7 @@ KanbanApi.prototype = {
             /^hsla?\(\s*[\d.]+\s*,\s*[\d.]+%\s*,\s*[\d.]+%\s*(,\s*[\d.]+\s*)?\)$/i.test(v) ||
             /^[a-z]{3,20}$/i.test(v)
         if (!ok) {
-            gs.warn('Kanban: ignoring unusable colour property value "' + v + '"')
+            gs.warn('NoviqBoard: ignoring unusable colour property value "' + v + '"')
             return fallback
         }
         return v
@@ -240,7 +240,7 @@ KanbanApi.prototype = {
             case 'rejected':
                 return 'Open the record and complete whatever the platform is asking for.'
             case 'bad_config':
-                return 'A Kanban administrator needs to correct this board\'s configuration.'
+                return 'A NoviqBoard administrator needs to correct this board\'s configuration.'
             case 'bad_request':
                 return 'Correct the request and try again.'
             default:
@@ -248,5 +248,5 @@ KanbanApi.prototype = {
         }
     },
 
-    type: 'KanbanApi',
+    type: 'NoviqBoardApi',
 }

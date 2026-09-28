@@ -1,9 +1,9 @@
-var KanbanAdminService = Class.create()
+var NoviqBoardAdminService = Class.create()
 
-KanbanAdminService.ADMIN_ROLE = 'x_335329_sn_ktm.kanban_admin'
+NoviqBoardAdminService.ADMIN_ROLE = 'x_nold_nvqbrd.noviqboard_admin'
 
 /** Field types that make sense as a card/modal field. Everything else is noise. */
-KanbanAdminService.DISPLAYABLE = [
+NoviqBoardAdminService.DISPLAYABLE = [
     'string',
     'integer',
     'decimal',
@@ -27,9 +27,9 @@ KanbanAdminService.DISPLAYABLE = [
     'currency',
 ]
 
-KanbanAdminService.prototype = {
+NoviqBoardAdminService.prototype = {
     initialize: function () {
-        this.choiceUtil = new KanbanChoiceUtil()
+        this.choiceUtil = new NoviqBoardChoiceUtil()
     },
 
     /**
@@ -116,7 +116,7 @@ KanbanAdminService.prototype = {
             var element = String(d.getValue('element'))
             if (!element || seen[element]) continue
             var type = String(d.getValue('internal_type'))
-            if (KanbanAdminService.DISPLAYABLE.indexOf(type) === -1) continue
+            if (NoviqBoardAdminService.DISPLAYABLE.indexOf(type) === -1) continue
             seen[element] = true
 
             fields.push({
@@ -199,7 +199,7 @@ KanbanAdminService.prototype = {
         if (!table) return this._err('bad_request', 'Choose a table for the board.')
 
         if (!this.choiceUtil.extendsTable(table, 'task')) {
-            return this._err('bad_request', '"' + table + '" does not extend task, so it cannot be a Kanban board.')
+            return this._err('bad_request', '"' + table + '" does not extend task, so it cannot be a NoviqBoard board.')
         }
 
         var lanes = this.choiceUtil.getChoices(table, laneField)
@@ -225,7 +225,7 @@ KanbanAdminService.prototype = {
             return this._err('bad_request', 'That filter is not a valid encoded query for ' + table + '.')
         }
 
-        var board = new GlideRecord(KanbanBoardService.BOARD)
+        var board = new GlideRecord(NoviqBoardBoardService.BOARD)
         board.initialize()
         board.setValue('name', name)
         board.setValue('table', table)
@@ -242,7 +242,7 @@ KanbanAdminService.prototype = {
         var boardId = board.insert()
         if (!boardId) {
             var correlationId = gs.generateGUID()
-            gs.error('[' + correlationId + '] KanbanAdminService.createBoard insert returned null for ' + table)
+            gs.error('[' + correlationId + '] NoviqBoardAdminService.createBoard insert returned null for ' + table)
             return {
                 ok: false,
                 code: 'rejected',
@@ -287,7 +287,7 @@ KanbanAdminService.prototype = {
             var meta = this.choiceUtil.describeField(template, element)
             if (!meta) continue
 
-            var row = new GlideRecord(KanbanBoardService.FIELD)
+            var row = new GlideRecord(NoviqBoardBoardService.FIELD)
             row.initialize()
             row.setValue('board', boardId)
             row.setValue('element', element)
@@ -333,13 +333,13 @@ KanbanAdminService.prototype = {
     },
 
     _requireAdmin: function () {
-        if (gs.hasRole(KanbanAdminService.ADMIN_ROLE) || gs.hasRole('admin')) return null
-        return this._err('no_access', 'Only a Kanban administrator can create or change boards.')
+        if (gs.hasRole(NoviqBoardAdminService.ADMIN_ROLE) || gs.hasRole('admin')) return null
+        return this._err('no_access', 'Only a NoviqBoard administrator can create or change boards.')
     },
 
     _err: function (code, message) {
         return { ok: false, code: code, message: message }
     },
 
-    type: 'KanbanAdminService',
+    type: 'NoviqBoardAdminService',
 }

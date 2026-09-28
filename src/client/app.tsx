@@ -23,7 +23,7 @@ import './preview.css'
 import './states.css'
 
 import { api } from './api'
-import { BoardConfig, BoardSummary, Card as CardModel, KanbanError, Settings } from './types'
+import { BoardConfig, BoardSummary, Card as CardModel, NoviqBoardError, Settings } from './types'
 import { Card } from './components/Card'
 import { Lane } from './components/Lane'
 import { Sidebar, Toast, Toasts, Toolbar } from './components/Chrome'
@@ -35,7 +35,7 @@ import { Empty, Failed, Loading, NoAccess, NoBoards } from './components/States'
 type Theme = 'light' | 'dark'
 
 const FALLBACK_SETTINGS: Settings = {
-    title: 'Kanban',
+    title: 'NoviqBoard',
     accent: '#635fc7',
     accent_dark: '#7b77e0',
     default_theme: 'system',
@@ -61,7 +61,7 @@ export default function App(): React.JSX.Element {
 
     const [loading, setLoading] = useState(true)
     const [refreshing, setRefreshing] = useState(false)
-    const [error, setError] = useState<KanbanError | null>(null)
+    const [error, setError] = useState<NoviqBoardError | null>(null)
 
     const [settings, setSettings] = useState<Settings>(FALLBACK_SETTINGS)
     const [theme, setTheme] = useState<Theme>('light')
@@ -98,6 +98,10 @@ export default function App(): React.JSX.Element {
         window.setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 9000)
     }, [])
 
+    useEffect(() => {
+        document.title = settings.title
+    }, [settings.title])
+
     // ---- settings + preferences + board list -------------------------------
     useEffect(() => {
         let live = true
@@ -117,7 +121,7 @@ export default function App(): React.JSX.Element {
             })
             .catch((e: unknown) => {
                 if (!live) return
-                setError(e instanceof KanbanError ? e : null)
+                setError(e instanceof NoviqBoardError ? e : null)
                 setLoading(false)
             })
         return () => {
@@ -158,7 +162,7 @@ export default function App(): React.JSX.Element {
             })
             .catch((e: unknown) => {
                 if (!live) return
-                setError(e instanceof KanbanError ? e : null)
+                setError(e instanceof NoviqBoardError ? e : null)
                 setLoading(false)
             })
         return () => {
@@ -185,7 +189,7 @@ export default function App(): React.JSX.Element {
                 })
                 .catch((e: unknown) => {
                     if (ticket !== requestSeq.current) return
-                    setError(e instanceof KanbanError ? e : null)
+                    setError(e instanceof NoviqBoardError ? e : null)
                 })
                 .finally(() => {
                     if (ticket !== requestSeq.current) return
@@ -275,7 +279,7 @@ export default function App(): React.JSX.Element {
             const result = await api.moveLane(board.sys_id, board.table, sysId, toLane, card.sys_updated_on)
             setCards((prev) => prev.map((c) => (c.sys_id === sysId ? { ...result.card, pending: false } : c)))
         } catch (e: unknown) {
-            const err = e instanceof KanbanError ? e : null
+            const err = e instanceof NoviqBoardError ? e : null
             const fresh = (err?.data as { card?: CardModel } | undefined)?.card
 
             if (err?.code === 'stale' && fresh) {
@@ -366,6 +370,7 @@ export default function App(): React.JSX.Element {
                             key={lane.value}
                             lane={lane}
                             cards={byLane.get(lane.value) ?? []}
+                            table={board.table}
                             onOpen={openCard}
                         />
                     ))}
@@ -373,7 +378,7 @@ export default function App(): React.JSX.Element {
                 <DragOverlay>
                     {draggingCard ? (
                         <ul style={{ listStyle: 'none', width: 'var(--lane-width)' }}>
-                            <Card card={draggingCard} laneLabel="" onOpen={() => undefined} overlay />
+                            <Card card={draggingCard} table={board.table} laneLabel="" onOpen={() => undefined} overlay />
                         </ul>
                     ) : null}
                 </DragOverlay>
@@ -389,7 +394,7 @@ export default function App(): React.JSX.Element {
     } as React.CSSProperties
 
     return (
-        <div className="kanban-root" data-theme={theme} data-density={settings.density} style={rootStyle}>
+        <div className="noviqboard-root" data-theme={theme} data-density={settings.density} style={rootStyle}>
             {!sidebarHidden ? (
                 <Sidebar
                     boards={boards}

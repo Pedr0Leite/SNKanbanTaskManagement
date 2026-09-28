@@ -47,6 +47,8 @@ function FieldChip({ field }: { field: FieldValue }): React.JSX.Element | null {
 
 export interface CardProps {
     card: CardModel
+    /** Source table, used to build the direct record link on the title. */
+    table: string
     laneLabel: string
     /** Lane accent colour, shown as the card's left edge. */
     accent?: string
@@ -55,7 +57,7 @@ export interface CardProps {
     overlay?: boolean
 }
 
-export function Card({ card, laneLabel, accent, onOpen, overlay = false }: CardProps): React.JSX.Element {
+export function Card({ card, table, laneLabel, accent, onOpen, overlay = false }: CardProps): React.JSX.Element {
     const locked = !card.can_write
     const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
         id: card.sys_id,
@@ -79,8 +81,7 @@ export function Card({ card, laneLabel, accent, onOpen, overlay = false }: CardP
 
     return (
         <li>
-            <button
-                type="button"
+            <div
                 ref={overlay ? undefined : setNodeRef}
                 className={className}
                 style={accent ? { borderLeftColor: accent } : undefined}
@@ -90,7 +91,23 @@ export function Card({ card, laneLabel, accent, onOpen, overlay = false }: CardP
                 {...(overlay ? {} : attributes)}
                 {...(overlay ? {} : listeners)}
             >
-                <span className="card-title">{card.title || card.sys_id}</span>
+                {overlay ? (
+                    <span className="card-title">{card.title || card.sys_id}</span>
+                ) : (
+                    // Stop propagation so following the link neither starts a drag nor opens the modal.
+                    <a
+                        className="card-title card-link"
+                        href={`/${table}.do?sys_id=${card.sys_id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Open record in a new tab"
+                        onClick={(e) => e.stopPropagation()}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => e.stopPropagation()}
+                    >
+                        {card.title || card.sys_id}
+                    </a>
+                )}
                 {card.subtitle ? <span className="card-subtitle">{card.subtitle}</span> : null}
                 {card.fields.length > 0 || locked ? (
                     <span className="card-meta">
@@ -104,7 +121,7 @@ export function Card({ card, laneLabel, accent, onOpen, overlay = false }: CardP
                         ) : null}
                     </span>
                 ) : null}
-            </button>
+            </div>
         </li>
     )
 }

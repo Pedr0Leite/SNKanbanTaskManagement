@@ -1,1 +1,1 @@
-# SNKanbanTaskManagement
+# NoviqBoard

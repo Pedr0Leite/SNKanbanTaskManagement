@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { api } from '../api'
-import { FieldChoices, FieldOption, KanbanError, TableOption } from '../types'
+import { FieldChoices, FieldOption, NoviqBoardError, TableOption } from '../types'
 
 export interface NewBoardDialogProps {
     onClose: () => void
@@ -43,7 +43,7 @@ export function NewBoardDialog({ onClose, onCreated }: NewBoardDialogProps): Rea
                 if (live) setTables(list)
             })
             .catch((e: unknown) => {
-                if (live) setError(e instanceof KanbanError ? e.message : 'Could not load the table list.')
+                if (live) setError(e instanceof NoviqBoardError ? e.message : 'Could not load the table list.')
             })
             .finally(() => {
                 if (live) setLoadingTables(false)
@@ -72,7 +72,7 @@ export function NewBoardDialog({ onClose, onCreated }: NewBoardDialogProps): Rea
                 setCardFields((prev) => prev.filter(has))
             })
             .catch((e: unknown) => {
-                if (live) setError(e instanceof KanbanError ? e.message : 'Could not load fields for that table.')
+                if (live) setError(e instanceof NoviqBoardError ? e.message : 'Could not load fields for that table.')
             })
             .finally(() => {
                 if (live) setLoadingFields(false)
@@ -165,7 +165,7 @@ export function NewBoardDialog({ onClose, onCreated }: NewBoardDialogProps): Rea
             onCreated(result.sys_id)
         } catch (e: unknown) {
             setError(
-                e instanceof KanbanError ? `${e.message} ${e.suggestedAction}` : 'The board could not be created.'
+                e instanceof NoviqBoardError ? `${e.message} ${e.suggestedAction}` : 'The board could not be created.'
             )
         } finally {
             setSaving(false)

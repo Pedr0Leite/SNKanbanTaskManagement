@@ -1,6 +1,6 @@
 {
-  "scope": "x_335329_sn_ktm",
+  "scope": "x_nold_nvqbrd",
   "scopeId": "73b2b3251e2141b8be3c601f42d4bb25",
-  "name": "SN Kanban Task Management",
+  "name": "NoviqBoard",
   "tsconfigPath": "./src/server/tsconfig.json"
 }

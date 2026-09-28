@@ -1,6 +1,6 @@
-var KanbanChoiceUtil = Class.create()
+var NoviqBoardChoiceUtil = Class.create()
 
-KanbanChoiceUtil.prototype = {
+NoviqBoardChoiceUtil.prototype = {
     initialize: function () {
         this.language = gs.getSession().getLanguage() || 'en'
         this._warned = {}
@@ -154,7 +154,7 @@ KanbanChoiceUtil.prototype = {
         try {
             if (!templateRecord.isValidField(element)) return null
         } catch (e) {
-            this._warnOnce('isValidField', 'Kanban: isValidField unavailable (' + String(e) + ')')
+            this._warnOnce('isValidField', 'NoviqBoard: isValidField unavailable (' + String(e) + ')')
             // Fall through — better to render with a fallback label than to drop
             // a field the administrator explicitly configured.
         }
@@ -177,7 +177,7 @@ KanbanChoiceUtil.prototype = {
         } catch (e) {
             this._warnOnce(
                 'descriptor',
-                'Kanban: field metadata unavailable, falling back to derived labels (' + String(e) + ')'
+                'NoviqBoard: field metadata unavailable, falling back to derived labels (' + String(e) + ')'
             )
         }
 
@@ -201,5 +201,5 @@ KanbanChoiceUtil.prototype = {
         gs.warn(message)
     },
 
-    type: 'KanbanChoiceUtil',
+    type: 'NoviqBoardChoiceUtil',
 }

@@ -1,6 +1,6 @@
 {
-  "name": "sn-ktm",
-  "version": "0.0.1",
+  "name": "noviqboard",
+  "version": "2.2.0",
   "description": "",
   "license": "UNLICENSED",
   "imports": {
@@ -9,6 +9,9 @@
   "scripts": {
     "build": "now-sdk build",
     "deploy": "now-sdk install",
+    "tosn-p": "npm version patch --no-git-tag-version && npm run build && npm run deploy",
+    "tosn-mi": "npm version minor --no-git-tag-version && npm run build && npm run deploy",
+    "tosn-mj": "npm version major --no-git-tag-version && npm run build && npm run deploy",
     "transform": "now-sdk transform",
     "types": "now-sdk dependencies",
     "dev": "now-sdk run dev"
