@@ -43,10 +43,13 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
-    background: var(--lane-bg);
-    border-radius: var(--radius-card);
-    padding: 4px;
-    transition: background 0.15s ease;
+    background: var(--glass);
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-panel);
+    padding: 12px 8px;
+    transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .lane.is-over {
@@ -107,7 +110,7 @@
     width: 100%;
     text-align: left;
     background: var(--surface-raised);
-    border: none;
+    border: 1px solid var(--line);
     border-left: 3px solid transparent;
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-card);
@@ -117,7 +120,14 @@
     gap: 8px;
     cursor: pointer;
     box-sizing: border-box;
-    transition: box-shadow 0.15s ease, opacity 0.15s ease;
+    transition: box-shadow 0.15s ease, opacity 0.15s ease, transform 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.card:hover {
+    border-color: var(--purple);
+    box-shadow: var(--shadow-drag);
+    transform: translateY(-2px);
 }
 
 .card:hover .card-title {

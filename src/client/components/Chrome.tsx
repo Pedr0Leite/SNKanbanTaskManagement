@@ -14,10 +14,20 @@ export interface SidebarProps {
     brand: string
     activeBoardId: string
     theme: 'light' | 'dark'
+    /** Drives the slide/fade transition; the nav stays mounted either way so the
+     *  collapse can animate instead of popping in and out. */
+    collapsed: boolean
     onSelect: (boardId: string) => void
     onToggleTheme: () => void
     onHide: () => void
     onNewBoard: () => void
+}
+
+/** First letter of each word, capped at two, for the board-list tile. */
+function boardInitials(name: string): string {
+    const parts = name.trim().split(/\s+/)
+    if (!parts[0]) return '?'
+    return (parts[0][0] + (parts[1]?.[0] ?? '')).toUpperCase()
 }
 
 export function Sidebar({
@@ -25,13 +35,18 @@ export function Sidebar({
     brand,
     activeBoardId,
     theme,
+    collapsed,
     onSelect,
     onToggleTheme,
     onHide,
     onNewBoard,
 }: SidebarProps): React.JSX.Element {
     return (
-        <nav className="sidebar" aria-label="Boards">
+        <nav
+            className={`sidebar${collapsed ? ' is-collapsed' : ''}`}
+            aria-label="Boards"
+            aria-hidden={collapsed}
+        >
             <div className="sidebar-brand">
                 <span className="mark" aria-hidden="true" />
                 {brand}
@@ -47,35 +62,46 @@ export function Sidebar({
                             type="button"
                             className={`board-btn${board.sys_id === activeBoardId ? ' active' : ''}`}
                             aria-current={board.sys_id === activeBoardId ? 'true' : undefined}
+                            tabIndex={collapsed ? -1 : undefined}
                             onClick={() => onSelect(board.sys_id)}
                         >
-                            <span className="board-icon" aria-hidden="true" />
+                            <span className="board-icon" aria-hidden="true">
+                                {boardInitials(board.name)}
+                            </span>
                             {board.name}
                         </button>
                     </li>
                 ))}
             </ul>
 
-            <button type="button" className="new-board-btn" onClick={onNewBoard}>
+            <button
+                type="button"
+                className="new-board-btn"
+                tabIndex={collapsed ? -1 : undefined}
+                onClick={onNewBoard}
+            >
                 + New board
             </button>
 
             <div className="sidebar-footer">
                 <button
                     type="button"
-                    className="theme-toggle"
+                    className="icon-btn"
+                    tabIndex={collapsed ? -1 : undefined}
                     onClick={onToggleTheme}
                     aria-pressed={theme === 'dark'}
+                    aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
                 >
-                    <span aria-hidden="true">&#9728;</span>
-                    <span className="switch" aria-hidden="true" />
-                    <span aria-hidden="true">&#9789;</span>
-                    <span className="visually-hidden">
-                        {theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-                    </span>
+                    <span aria-hidden="true">{theme === 'dark' ? '☾' : '☀'}</span>
                 </button>
-                <button type="button" className="sidebar-toggle" onClick={onHide}>
-                    <span aria-hidden="true">&#9668;</span> Hide sidebar
+                <button
+                    type="button"
+                    className="icon-btn"
+                    tabIndex={collapsed ? -1 : undefined}
+                    onClick={onHide}
+                    aria-label="Hide sidebar"
+                >
+                    <span aria-hidden="true">&#8676;</span>
                 </button>
             </div>
         </nav>

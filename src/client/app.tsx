@@ -395,18 +395,17 @@ export default function App(): React.JSX.Element {
 
     return (
         <div className="noviqboard-root" data-theme={theme} data-density={settings.density} style={rootStyle}>
-            {!sidebarHidden ? (
-                <Sidebar
-                    boards={boards}
-                    brand={settings.title}
-                    activeBoardId={boardId}
-                    theme={theme}
-                    onSelect={setBoardId}
-                    onToggleTheme={toggleTheme}
-                    onHide={() => hideSidebar(true)}
-                    onNewBoard={() => setNewBoardOpen(true)}
-                />
-            ) : null}
+            <Sidebar
+                boards={boards}
+                brand={settings.title}
+                activeBoardId={boardId}
+                theme={theme}
+                collapsed={sidebarHidden}
+                onSelect={setBoardId}
+                onToggleTheme={toggleTheme}
+                onHide={() => hideSidebar(true)}
+                onNewBoard={() => setNewBoardOpen(true)}
+            />
 
             <div className="main">
                 <Toolbar
