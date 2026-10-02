@@ -22,6 +22,14 @@
     --line: #e4ebfa;
     --line-strong: #c8d2e4;
 
+    /* Glass chrome -- sidebar, topbar, lane panels. Kept off cards so card text
+       stays at full contrast; this is the "not too much" glass surface. */
+    --glass: rgba(255, 255, 255, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --blur: 18px;
+    --board-wash: radial-gradient(circle at 15% 0%, rgba(99, 95, 199, 0.10), transparent 55%),
+        radial-gradient(circle at 85% 100%, rgba(99, 95, 199, 0.08), transparent 50%);
+
     --text: #000112;
     --text-muted: #626f83;
     --text-on-accent: #ffffff;
@@ -30,7 +38,8 @@
     --shadow-modal: 0 10px 40px 0 rgba(54, 78, 126, 0.25);
     --shadow-drag: 0 12px 24px 0 rgba(54, 78, 126, 0.3);
 
-    --radius-card: 8px;
+    --radius-card: 10px;
+    --radius-panel: 16px;
     --radius-control: 20px;
     --lane-width: 288px;
     --gutter: 24px;
@@ -56,6 +65,11 @@
     --lane-bg: transparent;
     --line: #3e3f4e;
     --line-strong: #4b4c5c;
+
+    --glass: rgba(43, 44, 55, 0.55);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --board-wash: radial-gradient(circle at 15% 0%, rgba(123, 119, 224, 0.14), transparent 55%),
+        radial-gradient(circle at 85% 100%, rgba(123, 119, 224, 0.1), transparent 50%);
 
     --text: #ffffff;
     --text-muted: #9aa6b8;

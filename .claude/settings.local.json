@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rtk read *)",
+      "Bash(rtk ls *)",
+      "Bash(xargs sed -i 's/x_335329_sn_ktm/x_nold_nvqbrd/g')",
+      "Bash(sed -i 's/\"name\": \"SN Kanban Task Management\"/\"name\": \"NoviqBoard\"/' now.config.json)",
+      "Bash(npm run *)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "claude-flow"
+  ]
+}
